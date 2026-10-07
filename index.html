@@ -128,6 +128,16 @@ button.p:hover{filter:brightness(1.1)}
  .app{padding:10px}
 }
 @media print{.mbar,.pgd{display:none!important}body{padding:0}body .wrap{display:block!important}body .editor{display:none!important}.sheet{zoom:1!important}}
+/* ---- correção de largura no celular ---- */
+.editor,.wrap,.app>*{min-width:0}
+input,select,textarea{min-width:0;max-width:100%}
+.row{flex-wrap:wrap}.row>*{flex:1 1 90px;min-width:0}
+.tabs button{min-width:0;white-space:nowrap;font-size:13px;padding:7px 2px}
+@media(max-width:860px){
+ .app{grid-template-columns:minmax(0,1fr)}
+ html,body{overflow-x:hidden}
+ .editor{padding:10px}
+}
 </style>
 </head>
 <body>
