@@ -138,11 +138,36 @@ input,select,textarea{min-width:0;max-width:100%}
  html,body{overflow-x:hidden}
  .editor{padding:10px}
 }
+/* ---- v5: barra de visualização, modo texto, histórico ---- */
+.wrap{overflow:visible}
+#sheet{width:var(--sw,794px);padding:var(--pad,44px);min-height:var(--mh,1000px)}
+.body.c2{column-count:2;column-gap:18px}.body.c2 .box{break-inside:avoid}
+.sheet:not(.stage) .c{font-size:calc(12px*var(--fz,1))}
+.sheet:not(.stage) .l{font-size:calc(11px*var(--fz,1))}
+.sheet:not(.stage) .ch .l{font-size:calc(12px*var(--fz,1))}
+.stage .body.c2{column-count:1}
+.vbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + 52px);z-index:15;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;padding:8px 12px;margin:0 auto 12px;max-width:1123px;background:var(--panel);border:1px solid var(--bd);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.vg{display:flex;align-items:center;gap:6px}.vl{font-size:11px;color:var(--mut);font-weight:600}
+.vbar button,.vbar select{padding:4px 9px;font-size:13px}.vbar select{width:auto;background:var(--bg)}
+.vbar small{color:var(--mut);min-width:24px;text-align:center}
+.seg2{display:inline-flex;background:var(--bg);border-radius:8px;padding:2px}
+.seg2 button{border:0;background:transparent;padding:3px 10px;border-radius:6px;color:var(--mut)}
+.seg2 button.on{background:var(--panel);color:var(--tx);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.chipb.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.modebar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px}
+#ttxt{min-height:46vh;width:100%;margin-top:8px;font-size:13px;line-height:1.35;overflow:auto}
+.parts{margin-top:10px}
+.sv{font-size:12px;color:var(--mut);white-space:nowrap}.sv.bad{color:var(--ac);font-weight:700}
+.top .ib{padding:5px 10px}
+button:disabled{opacity:.35;cursor:default}
+@media(max-width:860px){.vbar{flex-wrap:nowrap;overflow-x:auto}.vg{flex:0 0 auto}.sv{display:none}}
+@media print{.vbar{display:none!important}#sheet{width:100%!important;padding:0!important;min-height:0!important;zoom:1!important}}
 </style>
+<style id="pgcss"></style>
 </head>
 <body>
 <header class="top">
- <b class="logo">🎼 Cifras</b><span class="ttl" id="ttl"></span>
+ <b class="logo">🎼 Cifras</b><span class="ttl" id="ttl"></span><span class="sv" id="sv"></span><button class="ib" id="undo" title="Desfazer (Ctrl+Z)" disabled>↶</button><button class="ib" id="redo" title="Refazer (Ctrl+Y)" disabled>↷</button>
  <button id="stg0">🎤 Palco</button><button class="p" id="print" title="Na janela de impressão, escolha “Salvar como PDF”">🖨 Imprimir / PDF</button>
 </header>
 <div class="app">
@@ -154,24 +179,26 @@ input,select,textarea{min-width:0;max-width:100%}
    <details open><summary>Dados da música</summary>
     <label>Título</label><input id="title">
     <label>Artista</label><input id="artist">
-    <div class="row"><div><label>Tom</label><input id="key"></div><div><label>Compasso</label><input id="time"></div><div><label>BPM</label><input id="bpm" type="number" min="30" max="300"></div></div>
+    <div class="row"><div><label>Tom original</label><input id="key" placeholder="ex: C, Am, Bb"></div><div><label>Compasso</label><input id="time"></div><div><label>BPM</label><input id="bpm" type="number" min="30" max="300"></div></div>
     <div class="row"><div><label>Capotraste (casa)</label><input id="capo" type="number" min="0" max="11"></div><div style="display:flex;align-items:flex-end"><label style="display:flex;gap:6px;align-items:center;margin:0 0 9px"><input type="checkbox" id="capoS" style="width:auto"> acordes na forma do capo</label></div></div>
     <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="chart" style="width:auto"> Mostrar quadro de acordes na folha</label>
     <label>Acidentes na transposição</label><select id="acc"><option value="">Automático</option><option value="flat">Bemóis (Bb, Eb, Ab)</option><option value="sharp">Sustenidos (A#, D#, G#)</option></select>
    </details>
-   <div class="tr" style="margin-top:10px"><span style="color:var(--mut)">Transpor</span><button id="dn">−</button><b id="shift">0</b><button id="up">+</button><button id="rs">zerar</button></div>
-   <details><summary>Como escrever os acordes</summary><div class="help" style="margin-top:6px">Acorde entre colchetes, logo antes da sílaba onde ele toca:<br><code>[C]Abra os olhos do meu [G]coração</code><br>Nota pequena ao lado do acorde: <code>[C]{segura no C}</code><br>Linha só de acordes: <code>| [C] [G/B] [F/A] [C] :||</code><br>Dica: dentro de uma seção, toque nos botões de acordes do tom para inseri-los na posição do cursor.</div></details>
-   <div id="secs"></div>
-   <div class="bar">
-    <select id="newtype" style="width:auto"><option>Introdução</option><option selected>Estrofe</option><option>Refrão</option><option>Ponte</option><option>Pré-refrão</option><option>Final</option></select>
-    <button class="p" id="add">+ Seção</button>
-    <button id="paste">📋 Colar cifra pronta</button>
+   <div class="modebar"><div class="seg2" id="modeseg"><button data-md="cards" class="on">▦ Cartões</button><button data-md="text">✎ Texto</button></div><button id="paste">📋 Colar cifra</button></div>
+   <div class="chips parts" id="parts"></div>
+   <div id="cardsbox">
+    <details><summary>Como escrever os acordes</summary><div class="help" style="margin-top:6px">Acorde entre colchetes, logo antes da sílaba onde ele toca:<br><code>[C]Abra os olhos do meu [G]coração</code><br>Nota pequena ao lado do acorde: <code>[C]{segura no C}</code><br>Linha só de acordes: <code>| [C] [G/B] [F/A] [C] :||</code><br>Prefere o formato clássico (acordes em cima, letra embaixo)? Use o modo <b>✎ Texto</b>.</div></details>
+    <div id="secs"></div>
+    <div class="sec" id="pbox" style="display:none">
+     <label style="margin-top:0">Cole aqui a cifra (acordes numa linha, letra embaixo). Separe as seções com uma linha em branco; títulos como “Refrão:” ou “[Ponte]” nomeiam a seção.</label>
+     <textarea id="ptxt" rows="9" placeholder="C            G&#10;Abra os olhos do meu coração"></textarea>
+     <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="prep" style="width:auto"> Substituir as seções atuais</label>
+     <div class="bar"><button class="p" id="pgo">Converter e adicionar</button><button id="pcx">Cancelar</button></div>
+    </div>
    </div>
-   <div class="sec" id="pbox" style="display:none">
-    <label style="margin-top:0">Cole aqui a cifra (acordes numa linha, letra embaixo). Separe as seções com uma linha em branco; títulos como “Refrão:” ou “[Ponte]” nomeiam a seção.</label>
-    <textarea id="ptxt" rows="9" placeholder="C            G&#10;Abra os olhos do meu coração"></textarea>
-    <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="prep" style="width:auto"> Substituir as seções atuais</label>
-    <div class="bar"><button class="p" id="pgo">Converter e adicionar</button><button id="pcx">Cancelar</button></div>
+   <div id="txtbox" hidden>
+    <textarea id="ttxt" spellcheck="false" placeholder="[Estrofe]&#10;C            G&#10;Abra os olhos do meu coração"></textarea>
+    <div class="help" style="margin-top:6px">Escreva no formato clássico: título da parte entre colchetes (<code>[Refrão] 2x</code>), acordes numa linha e a letra logo abaixo. Uma linha em branco separa as partes. Observação da parte: linha começando com <code>&gt;</code>. Nota ao lado do acorde: <code>C{segura_no_C}</code>.</div>
    </div>
   </section>
 
@@ -193,7 +220,16 @@ input,select,textarea{min-width:0;max-width:100%}
    <div class="bar"><button class="p" id="sview">👁 Ver / imprimir repertório</button><button id="back" style="display:none">← Voltar à música</button></div>
   </section>
  </div>
- <div class="wrap"><div class="sheet" id="sheet"></div></div>
+ <div class="wrap">
+  <div class="vbar" id="vbar">
+   <div class="vg"><span class="vl">Tom</span><button id="dn" title="Meio tom abaixo">−</button><select id="ksel" title="Tom de saída"></select><button id="up" title="Meio tom acima">+</button><small id="shift"></small><button id="rs" title="Voltar ao tom original">↺</button></div>
+   <div class="vg"><button id="deg" class="chipb" title="Mostrar números no lugar das letras">1·4·5 Graus</button></div>
+   <div class="vg"><span class="vl">Colunas</span><div class="seg2"><button data-cols="1">1</button><button data-cols="2">2</button></div></div>
+   <div class="vg"><span class="vl">Letra</span><button id="fdn">A−</button><small id="fval"></small><button id="fup">A+</button></div>
+   <div class="vg"><span class="vl">Margem</span><select id="msel"><option value="c">Compacta</option><option value="n">Normal</option><option value="w">Ampla</option></select></div>
+   <div class="vg"><span class="vl">Papel</span><div class="seg2"><button data-ori="p">Retrato</button><button data-ori="l">Paisagem</button></div></div>
+  </div>
+  <div class="sheet" id="sheet"></div></div>
 </div>
 <nav class="mbar"><button data-m="edit" class="on">✏️ Editar</button><button data-m="sheet">📄 Folha</button><button id="mstage">🎤 Palco</button></nav>
 <div id="tip" class="tip"></div>
@@ -224,8 +260,9 @@ if(!LIB||!LIB.songs||!LIB.songs.length){
 S=LIB.songs.find(s=>s.id===LIB.cur)||LIB.songs[0];LIB.cur=S.id;LIB.sets=LIB.sets||[];
 let DL=null;
 try{if(window.claude)claude.use("downloads").then(d=>DL=d).catch(()=>{})}catch(e){}
-const persist=()=>{try{localStorage.setItem("cifras_lib",JSON.stringify(LIB))}catch(e){}};
-const save=()=>{S.updated=Date.now();persist();lib()};
+const persist=()=>{try{localStorage.setItem("cifras_lib",JSON.stringify(LIB));return true}catch(e){return false}};
+let HID=null,HT=null,MODE="cards";const HIST={};
+const save=()=>{S.updated=Date.now();const ok=persist();lib();HID=S.id;clearTimeout(HT);HT=setTimeout(snap,500);updUndo();const sv=$("sv");sv.textContent=ok?"✓ Salvo neste navegador":"⚠ Não foi possível salvar";sv.className="sv"+(ok?"":" bad")};
 let VIEW="song";
 const curSet=()=>LIB.sets.find(x=>x.id===LIB.curSet);
 const songBy=id=>LIB.songs.find(s=>s.id===id);
@@ -243,7 +280,7 @@ function lib(){
  });
  sets();
 }
-function fields(){["title","artist","key","time","bpm"].forEach(f=>$(f).value=S[f]||"");$("capo").value=S.capo||0;$("capoS").checked=!!S.capoShapes;$("chart").checked=!!S.chart;$("acc").value=S.acc||""}
+function fields(){["title","artist","key","time","bpm"].forEach(f=>$(f).value=S[f]||"");$("capo").value=S.capo||0;$("capoS").checked=!!S.capoShapes;$("chart").checked=!!S.chart;$("acc").value=S.acc||"";hist();updUndo()}
 async function out(name,obj){
  const data=JSON.stringify(obj,null,1);
  try{
@@ -257,55 +294,72 @@ const SH=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],FL=["C","Db","D"
 const IDX={};SH.forEach((n,i)=>IDX[n]=i);FL.forEach((n,i)=>IDX[n]=i);
 let PREFER=null;
 function tn(n,k){const m=n.match(/^([A-G][#b]?)/);if(!m||(!k&&!PREFER))return n;const r=m[1],i=(IDX[r]+k+120)%12;return (PREFER==="flat"?FL:PREFER==="sharp"?SH:r.includes("b")?FL:SH)[i]+n.slice(r.length)}
-function tc(c,k){return c.split("/").map(p=>tn(p,k)).join("/")}
+let DEG=null,SW=794,PH=1030;
+const DGN=["1","b2","2","b3","3","4","b5","5","b6","6","b7","7"];
+const isMin=k=>/min|menor|^\s*[A-G][#b]?m(?!aj)/i.test(k||"");
+function origIdx(sg){const m=(sg.key||"").match(/^\s*([A-G][#b]?)/);if(m)return IDX[m[1]];for(const s of sg.sections){const c=(s.text.match(/\[([A-G][#b]?)/)||[])[1];if(c)return IDX[c]}return 0}
+function dgc(p){const m=p.match(/^([A-G][#b]?)(.*)$/);return m?DGN[(IDX[m[1]]-DEG+12)%12]+m[2]:p}
+function tc(c,k){return c.split("/").map(p=>DEG!==null?dgc(p):tn(p,k)).join("/")}
+function tcr(c,k){return c.split("/").map(p=>tn(p,k)).join("/")}
 function line(t,k){
  const segs=[];
  t.split(/(\[[^\]]+\])/).forEach(p=>{
   const m=p.match(/^\[([^\]]+)\]$/);
-  if(m)segs.push({c:tc(m[1],k),t:"",n:[]});
-  else if(p){if(!segs.length)segs.push({c:"",t:p,n:[]});else segs[segs.length-1].t+=p}
+  if(m)segs.push({c:tc(m[1],k),r:tcr(m[1],k),t:"",n:[]});
+  else if(p){if(!segs.length)segs.push({c:"",r:"",t:p,n:[]});else segs[segs.length-1].t+=p}
  });
- segs.forEach(s=>{s.n=s.n||[];s.t=s.t.replace(/\{([^}]*)\}/g,(_,x)=>{s.n.push(x);return ""})});
+ segs.forEach(s=>{s.t=s.t.replace(/\{([^}]*)\}/g,(_,x)=>{s.n.push(x);return ""})});
  const only=!/[a-zA-ZÀ-ú]/.test(t.replace(/\[[^\]]+\]|\{[^}]*\}/g,""));
- return `<div class="ln ${only?"ch":""}">`+segs.map(s=>`<span class="s"><span class="c">${esc(s.c)}${s.n.map(x=>`<span class="nt">${esc(x)}</span>`).join("")}</span><span class="l">${esc(s.t)||" "}</span></span>`).join("")+"</div>";
+ return `<div class="ln ${only?"ch":""}">`+segs.map(s=>`<span class="s"><span class="c"${s.r?` data-n="${esc(s.r).replace(/"/g,"&quot;")}"`:""}>${esc(s.c)}${s.n.map(x=>`<span class="nt">${esc(x)}</span>`).join("")}</span><span class="l">${esc(s.t)||" "}</span></span>`).join("")+"</div>";
 }
 function sheetHTML(sg,x=0){
- PREFER=sg.acc||null;
+ PREFER=sg.acc||null;DEG=sg.degrees?origIdx(sg):null;
  const t=(sg.shift||0)+x,k=t-(sg.capoShapes?(sg.capo||0):0);
- let key=sg.key||"";if(t)key=key.replace(/^([A-G][#b]?)/,m=>tn(m,t));
- let o=`<h2>${esc(sg.title||"")}</h2><div class="art">${esc(sg.artist||"")}</div><div class="meta">${key?`Tom: <b>${esc(key)}</b>`:""}${sg.time?` | Comp: <b>${esc(sg.time)}</b>`:""}${sg.bpm?` | BPM: <b>${esc(String(sg.bpm))}</b>`:""}${sg.capo?` | Capotraste: <b>${sg.capo}ª casa</b>`:""}</div>`;
- o+=sg.sections.map(s=>`<div class="box"><span class="lb">${esc(s.name)}${s.rep?`<i>${esc(s.rep)}</i>`:""}</span>${s.text.split("\n").map(l=>line(l,k)).join("")}${s.note?`<div class="sn">${esc(s.note)}</div>`:""}</div>`).join("");
+ let key=sg.key||"";if(t)key=key?key.replace(/^([A-G][#b]?)/,m=>tn(m,t)):tn((PREFER==="flat"?FL:SH)[origIdx(sg)],t);
+ let o=`<h2>${esc(sg.title||"")}</h2><div class="art">${esc(sg.artist||"")}</div><div class="meta">${key?`Tom: <b>${esc(key)}</b>`:""}${sg.time?` | Comp: <b>${esc(sg.time)}</b>`:""}${sg.bpm?` | BPM: <b>${esc(String(sg.bpm))}</b>`:""}${sg.capo?` | Capotraste: <b>${sg.capo}ª casa</b>`:""}${sg.degrees?` | <b>Graus</b>`:""}</div>`;
+ o+=`<div class="body${sg.cols==2?" c2":""}">`+sg.sections.map(s=>`<div class="box"><span class="lb">${esc(s.name)}${s.rep?`<i>${esc(s.rep)}</i>`:""}</span>${s.text.split("\n").map(l=>line(l,k)).join("")}${s.note?`<div class="sn">${esc(s.note)}</div>`:""}</div>`).join("")+`</div>`;
  if(sg.chart){
-  const u=[];sg.sections.forEach(s=>(s.text.match(/\[[^\]]+\]/g)||[]).forEach(m=>{const c=tc(m.slice(1,-1),k);if(!u.includes(c))u.push(c)}));
+  const u=[];sg.sections.forEach(s=>(s.text.match(/\[[^\]]+\]/g)||[]).forEach(m=>{const c=tcr(m.slice(1,-1),k);if(!u.includes(c))u.push(c)}));
   o+=`<div class="chart">`+u.map(c=>`<figure><figcaption>${esc(c)}</figcaption>${diag(c)}</figure>`).join("")+`</div>`;
  }
- return o;
+ return `<div class="song" style="--fz:${(sg.fs||100)/100}">${o}</div>`;
 }
 function preview(){
- $("shift").textContent=(S.shift>0?"+":"")+S.shift;
- const cs=curSet();
- if(VIEW==="set"){
+ const cs=curSet(),set=VIEW==="set",first=set&&cs&&cs.items.length?songBy(cs.items[0].songId):null,ps=first||S;
+ const land=ps.ori==="l",MM={c:8,n:12,w:18}[ps.mar||"n"],pad={c:30,n:45,w:68}[ps.mar||"n"];
+ SW=land?1123:794;PH=Math.round(((land?210:297)-2*MM)*3.7795);
+ const sh=$("sheet");sh.style.setProperty("--sw",SW+"px");sh.style.setProperty("--pad",pad+"px");sh.style.setProperty("--mh",(land?700:1000)+"px");
+ $("pgcss").textContent=`@page{size:A4 ${land?"landscape":"portrait"};margin:${MM}mm}`;
+ if(set){
   const its=cs?cs.items:[];
-  $("sheet").innerHTML=its.map(it=>{const sg=songBy(it.songId);return sg?`<div class="pg">${sheetHTML(sg,it.shift||0)}</div>`:""}).join("")||"<p style='color:#888'>Repertório vazio. Adicione músicas no painel ao lado.</p>";
- }else $("sheet").innerHTML=sheetHTML(S);
- $("back").style.display=VIEW==="set"?"":"none";
+  sh.innerHTML=its.map(it=>{const sg=songBy(it.songId);return sg?`<div class="pg">${sheetHTML(sg,it.shift||0)}</div>`:""}).join("")||"<p style='color:#888'>Repertório vazio. Adicione músicas no painel ao lado.</p>";
+ }else sh.innerHTML=sheetHTML(S);
+ $("vbar").style.display=set?"none":"";
+ const sv=(((S.shift||0)%12)+12)%12,lab=sv>6?sv-12:sv;$("shift").textContent=lab?(lab>0?"+":"")+lab:"";
+ const fl=S.acc==="flat"||(S.acc!=="sharp"&&/^\s*[A-G]b/.test(S.key||"")),mn=isMin(S.key),ks=$("ksel"),sig=fl+"|"+mn;
+ if(ks.dataset.sig!==sig){ks.dataset.sig=sig;ks.innerHTML=(fl?FL:SH).map((n,i)=>`<option value="${i}">${n+(mn?"m":"")}</option>`).join("")}
+ ks.value=String((origIdx(S)+sv)%12);
+ document.querySelectorAll("[data-cols]").forEach(b=>b.classList.toggle("on",+b.dataset.cols===(S.cols==2?2:1)));
+ document.querySelectorAll("[data-ori]").forEach(b=>b.classList.toggle("on",b.dataset.ori===(S.ori==="l"?"l":"p")));
+ $("deg").classList.toggle("on",!!S.degrees);$("fval").textContent=(S.fs||100)+"%";$("msel").value=S.mar||"n";
+ $("back").style.display=set?"":"none";
  try{guides()}catch(e){}
- $("ttl").textContent=VIEW==="set"?"Repertório: "+(cs?cs.name:""):(S.title||"Sem título")+(S.artist?" — "+S.artist:"");
+ $("ttl").textContent=set?"Repertório: "+(cs?cs.name:""):(S.title||"Sem título")+(S.artist?" — "+S.artist:"");
 }
 function guides(){
  const sh=$("sheet");sh.querySelectorAll(".pgd").forEach(e=>e.remove());
- const sr=sh.getBoundingClientRect();if(!sr.width)return;
- const k=sr.width/794,PH=1030,Y=el=>(el.getBoundingClientRect().top-sr.top)/k,H=el=>el.getBoundingClientRect().height/k;
+ const sr=sh.getBoundingClientRect();if(!sr.width||sh.querySelector(".c2"))return;
+ const k=sr.width/SW,Y=el=>(el.getBoundingClientRect().top-sr.top)/k,H=el=>el.getBoundingClientRect().height/k;
  const add=(y,n)=>{const g=document.createElement("div");g.className="pgd";g.style.top=(y-9)+"px";g.innerHTML=`<span>página ${n}</span>`;sh.appendChild(g)};
- const pgs=sh.querySelectorAll(".pg"),conts=pgs.length?[...pgs]:[sh];let n=1;
- conts.forEach((c,ci)=>{
-  const kids=[...c.children].filter(x=>!x.classList.contains("pgd"));if(!kids.length)return;
+ let n=1;
+ [...sh.querySelectorAll(".song")].forEach((c,ci)=>{
+  const kids=[...c.children].flatMap(x=>x.classList.contains("body")?[...x.children]:[x]);if(!kids.length)return;
   if(ci>0){n++;add(Y(kids[0]),n)}
   let ps=Y(kids[0]);
   kids.forEach(b=>{const y=Y(b),bt=y+H(b);if(bt>ps+PH&&y>ps+1){n++;add(y,n);ps=y}});
  });
 }
-function fit(){const w=document.querySelector(".wrap").clientWidth;if(w<60)return;$("sheet").style.setProperty("--z",Math.min(1,w/794))}
+function fit(){const w=document.querySelector(".wrap").clientWidth;if(w<60)return;$("sheet").style.setProperty("--z",Math.min(1,w/SW))}
 function setM(m){document.body.className="m-"+m;document.querySelectorAll(".mbar [data-m]").forEach(b=>b.classList.toggle("on",b.dataset.m===m));setTimeout(()=>{fit();try{guides()}catch(e){}},30)}
 document.querySelectorAll(".mbar [data-m]").forEach(b=>b.onclick=()=>setM(b.dataset.m));
 $("mstage").onclick=()=>$("stg0").click();
@@ -350,9 +404,9 @@ function diag(c){
 }
 function tip(e){
  const t=$("tip"),el=e.target.closest&&e.target.closest(".c");
- const d=el&&el.closest("#sheet,#stg")?diag(el.textContent.trim()):"";
+ const d=el&&el.closest("#sheet,#stg")?diag(el.dataset.n||el.textContent.trim()):"";
  if(!d){t.style.display="none";return}
- t.innerHTML=`<b>${esc(el.textContent.trim())}</b><br>${d}`;t.style.display="block";
+ t.innerHTML=`<b>${esc(el.dataset.n||el.textContent.trim())}</b><br>${d}`;t.style.display="block";
  const r=el.getBoundingClientRect();t.style.left=Math.max(4,Math.min(r.left,innerWidth-90))+"px";t.style.top=(r.bottom+4>innerHeight-110?Math.max(4,r.top-108):r.bottom+4)+"px";
 }
 document.addEventListener("mouseover",tip);document.addEventListener("click",tip);
@@ -406,39 +460,69 @@ function editor(){
 }
 function tab(t){document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));document.querySelectorAll(".tab").forEach(s=>s.hidden=s.id!=="t-"+t)}
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>tab(b.dataset.t));
-function all(){save();editor();preview()}
+function all(){save();editor();preview();if(MODE==="text")$("ttxt").value=ser(S.sections)}
 ["title","artist","key","time","bpm"].forEach(f=>{$(f).oninput=()=>{S[f]=$(f).value;save();preview()}});
-$("up").onclick=()=>{S.shift=(S.shift+1)%12;save();preview()};
-$("dn").onclick=()=>{S.shift=(S.shift-1)%12;save();preview()};
+$("up").onclick=()=>{S.shift=((S.shift||0)+13)%12;save();preview()};
+$("dn").onclick=()=>{S.shift=((S.shift||0)+11)%12;save();preview()};
 $("rs").onclick=()=>{S.shift=0;save();preview()};
-$("add").onclick=()=>{const ns={name:$("newtype").value,text:""};S.sections.push(ns);OPENS.add(ns);all()};
+$("ksel").onchange=()=>{S.shift=((+$("ksel").value)-origIdx(S)+12)%12;save();preview()};
 const CH=/^[A-G][#b]?(m|maj|min|dim|aug|sus|add|M)?[0-9]*([#b+°º-]?[0-9]*)*(\([^)]*\))?(\/[A-G][#b]?)?$/;
 const SKIP=/^(\||\|\||:\|\||\|\|:|:|-|–|x\d+|\d+x|\(?\d+x\)?)$/i;
-const isChordLine=l=>{const t=l.trim().split(/\s+/).filter(Boolean);return t.length>0&&t.some(x=>CH.test(x))&&t.every(x=>CH.test(x)||SKIP.test(x))};
+const nb=x=>x.replace(/\{[^}]*\}$/,"");
+const nt=x=>{const m=x.match(/\{([^}]*)\}$/);return m?m[1].replace(/_/g," "):""};
+const isChordLine=l=>{const t=l.trim().split(/\s+/).filter(Boolean);return t.length>0&&t.some(x=>CH.test(nb(x)))&&t.every(x=>CH.test(nb(x))||SKIP.test(x))};
 const HEAD=/^\[?\s*(intro(dução|ducao)?|estrofe|verso|refr[aã]o|coro|ponte|pr[eé][- ]?refr[aã]o|final|solo|interl[uú]dio|outro|tag)\b[^\n]{0,20}?\]?\s*:?\s*$/i;
+const BH=/^\[([^\]]+)\]\s*((?:\d+\s*x|x\s*\d+))?\s*$/i;
+const isHdr=l=>{const t=l.trim(),m=t.match(BH);return(!!m&&!CH.test(m[1].trim()))||(!isChordLine(t)&&HEAD.test(t))};
 function conv(chordL,lyric){
  let res=lyric.replace(/\t/g,"    ");
- const pos=[];chordL.replace(/\t/g,"    ").replace(/\S+/g,(m,i)=>{if(CH.test(m))pos.push([i,m])});
- pos.reverse().forEach(([i,m])=>{if(res.length<i)res=res.padEnd(i," ");res=res.slice(0,i)+"["+m+"]"+res.slice(i)});
+ const pos=[];chordL.replace(/\t/g,"    ").replace(/\S+/g,(m,i)=>{if(CH.test(nb(m)))pos.push([i,m])});
+ pos.reverse().forEach(([i,m])=>{if(res.length<i)res=res.padEnd(i," ");const n=nt(m);res=res.slice(0,i)+"["+nb(m)+"]"+(n?"{"+n+"}":"")+res.slice(i)});
  return res.replace(/\s+$/,"");
 }
-function chordOnly(l){return l.trim().split(/\s+/).map(x=>CH.test(x)?"["+x+"]":x).join(" ")}
+function chordOnly(l){return l.trim().split(/\s+/).map(x=>{if(CH.test(nb(x))){const n=nt(x);return "["+nb(x)+"]"+(n?"{"+n+"}":"")}return x}).join(" ")}
 function parse(txt){
- const L=txt.replace(/\r/g,"").split("\n"),secs=[];let cur=null,name=null;
- const flush=()=>{if(cur&&cur.lines.length){const co=cur.lines.every(x=>/^[\s|:\[\]\-x\d]*$/.test(x.replace(/\[[^\]]+\]/g,"")));
-  secs.push({name:cur.name||(co&&!secs.length?"Introdução":"Estrofe"),text:cur.lines.join("\n")})}cur=null};
+ const L=txt.replace(/\r/g,"").split("\n"),secs=[];let cur=null;
+ const flush=()=>{if(cur&&(cur.lines.length||cur.note||cur.name)){
+  const co=cur.lines.length>0&&cur.lines.every(x=>/^[\s|:\[\]\-x\d]*$/.test(x.replace(/\[[^\]]+\]|\{[^}]*\}/g,"")));
+  const s={name:cur.name||(co&&!secs.length?"Introdução":"Estrofe"),text:cur.lines.join("\n")};
+  if(cur.rep)s.rep=cur.rep;if(cur.note)s.note=cur.note;secs.push(s)}cur=null};
  for(let i=0;i<L.length;i++){
   const l=L[i];
   if(!l.trim()){flush();continue}
-  if(!isChordLine(l)&&HEAD.test(l.trim())){flush();name=l.trim().replace(/[\[\]:]/g,"").trim();name=name[0].toUpperCase()+name.slice(1);cur={name,lines:[]};continue}
-  if(!cur)cur={name:null,lines:[]};
+  if(isHdr(l)){
+   flush();const t=l.trim(),m=t.match(BH);let name,rep="";
+   if(m&&!CH.test(m[1].trim())){name=m[1].trim();rep=(m[2]||"").replace(/\s/g,"")}
+   else name=t.replace(/[\[\]:]/g,"").trim();
+   name=name[0].toUpperCase()+name.slice(1);cur={name,rep,lines:[],note:""};continue}
+  if(!cur)cur={name:null,rep:"",lines:[],note:""};
+  if(/^>\s?/.test(l)){cur.note=(cur.note?cur.note+" ":"")+l.replace(/^>\s?/,"").trim();continue}
   if(isChordLine(l)){
    const n=L[i+1];
-   if(n!==undefined&&n.trim()&&!isChordLine(n)&&!HEAD.test(n.trim())){cur.lines.push(conv(l,n));i++}
+   if(n!==undefined&&n.trim()&&!isChordLine(n)&&!isHdr(n)&&!/^>/.test(n)){cur.lines.push(conv(l,n));i++}
    else cur.lines.push(chordOnly(l));
   }else cur.lines.push(l.replace(/\s+$/,""));
  }
  flush();return secs;
+}
+function ser(secs){
+ return secs.map(s=>{
+  const out=["["+s.name+"]"+(s.rep?" "+s.rep:"")];
+  if(s.note)out.push("> "+s.note);
+  (s.text||"").split("\n").forEach(l=>{
+   if(!l.trim())return;
+   const only=!/[a-zA-ZÀ-ú]/.test(l.replace(/\[[^\]]+\]|\{[^}]*\}/g,""));
+   if(only){out.push(l.replace(/\[([^\]]+)\](\{([^}]*)\})?/g,(_,c,__,n)=>c+(n?"{"+n.replace(/ /g,"_")+"}":"")));return}
+   let ch="",ly="",any=false;
+   l.split(/(\[[^\]]+\])/).forEach(p=>{
+    const m=p.match(/^\[([^\]]+)\]$/);
+    if(m){any=true;const pos=Math.max(ly.length,ch.length?ch.length+1:0);ch=ch.padEnd(pos," ")+m[1]}
+    else{let t=p;if(any)t=t.replace(/\{([^}]*)\}/g,(_,x)=>{ch+="{"+x.replace(/ /g,"_")+"}";return ""});ly+=t}
+   });
+   if(any)out.push(ch);if(ly.trim())out.push(ly.replace(/\s+$/,""));
+  });
+  return out.join("\n");
+ }).join("\n\n");
 }
 $("paste").onclick=()=>{$("pbox").style.display="block";$("ptxt").focus()};
 $("pcx").onclick=()=>{$("pbox").style.display="none"};
@@ -533,6 +617,48 @@ $("file").onchange=async e=>{
  }catch(err){msg("Arquivo inválido. Use um .json exportado por este site.")}
 };
 fields();
+/* ---- histórico (desfazer/refazer) ---- */
+function snapStr(sg){return JSON.stringify(sg,(k,v)=>k==="updated"?undefined:v)}
+function hist(){return HIST[S.id]||(HIST[S.id]={a:[snapStr(S)],i:0})}
+function snap(){HT=null;const sg=songBy(HID);if(!sg)return;const s=snapStr(sg),h=HIST[HID]||(HIST[HID]={a:[s],i:0});
+ if(h.a[h.i]!==s){h.a=h.a.slice(0,h.i+1);h.a.push(s);if(h.a.length>80)h.a.shift();h.i=h.a.length-1}updUndo()}
+function updUndo(){const h=HIST[S.id];$("undo").disabled=!h||(h.i<=0&&!HT);$("redo").disabled=!h||h.i>=h.a.length-1}
+function restore(str){
+ const open=S.sections.map(s=>OPENS.has(s)),o=JSON.parse(str);
+ Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,o);S.updated=Date.now();
+ S.sections.forEach((s,i)=>{if(open[i])OPENS.add(s)});
+ persist();fields();editor();preview();if(MODE==="text")$("ttxt").value=ser(S.sections);lib();updUndo();
+}
+function undo(){if(HT){clearTimeout(HT);snap()}const h=hist();if(h.i>0){h.i--;restore(h.a[h.i])}}
+function redo(){if(HT){clearTimeout(HT);snap()}const h=hist();if(h.i<h.a.length-1){h.i++;restore(h.a[h.i])}}
+$("undo").onclick=undo;$("redo").onclick=redo;
+document.addEventListener("keydown",e=>{
+ if(!(e.ctrlKey||e.metaKey)||/INPUT|TEXTAREA|SELECT/.test((e.target.tagName||"")))return;
+ const k=e.key.toLowerCase();
+ if(k==="z"&&!e.shiftKey){e.preventDefault();undo()}else if(k==="y"||(k==="z"&&e.shiftKey)){e.preventDefault();redo()}
+});
+/* ---- barra de visualização ---- */
+document.querySelectorAll("[data-cols]").forEach(b=>b.onclick=()=>{S.cols=+b.dataset.cols;save();preview()});
+document.querySelectorAll("[data-ori]").forEach(b=>b.onclick=()=>{S.ori=b.dataset.ori;save();preview()});
+$("msel").onchange=()=>{S.mar=$("msel").value;save();preview()};
+$("fup").onclick=()=>{S.fs=Math.min(150,(S.fs||100)+10);save();preview()};
+$("fdn").onclick=()=>{S.fs=Math.max(70,(S.fs||100)-10);save();preview()};
+$("deg").onclick=()=>{S.degrees=!S.degrees;save();preview()};
+/* ---- modo cartões / texto + partes ---- */
+function setMode(m){
+ MODE=m;document.querySelectorAll("[data-md]").forEach(b=>b.classList.toggle("on",b.dataset.md===m));
+ $("cardsbox").hidden=m!=="cards";$("txtbox").hidden=m!=="text";$("paste").style.display=m==="cards"?"":"none";
+ if(m==="text")$("ttxt").value=ser(S.sections);else editor();
+}
+document.querySelectorAll("[data-md]").forEach(b=>b.onclick=()=>setMode(b.dataset.md));
+$("ttxt").oninput=()=>{S.sections=parse($("ttxt").value);save();preview()};
+const PARTS=["Introdução","Estrofe","Pré-refrão","Refrão","Ponte","Solo","Interlúdio","Final"];
+$("parts").innerHTML=PARTS.map(n=>`<button>+ ${n}</button>`).join("")+`<button>+ Nova parte</button>`;
+[...$("parts").children].forEach((b,i)=>b.onclick=()=>{
+ const n=PARTS[i]||"Parte";
+ if(MODE==="text"){const ta=$("ttxt"),pre=ta.value.slice(0,ta.selectionStart||0);ins(ta,(!pre?"":/\n\n$/.test(pre)?"":pre.endsWith("\n")?"\n":"\n\n")+"["+n+"]\n",0)}
+ else{const ns={name:n,text:""};S.sections.push(ns);OPENS.add(ns);all()}
+});
 all();setM("edit");
 </script>
 </body>
