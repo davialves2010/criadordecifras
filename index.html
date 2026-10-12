@@ -202,6 +202,35 @@ html:not(.locked) #auth{display:none}
 .linkb{border:0;background:transparent;color:var(--ac);padding:10px 0 0;width:100%}
 .apriv{display:block;color:var(--mut);margin-top:12px;line-height:1.4}
 .acct{padding:6px 10px;font-size:12px;color:var(--mut);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ---- v9: página de configurações ---- */
+.modal{z-index:95}
+.cfgpage{position:fixed;inset:0;z-index:80;background:var(--bg);overflow:auto;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.cfgpage[hidden]{display:none}
+.cfgbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--bd)}
+.cfgbar b{font-size:16px}
+.cfgbody{max-width:640px;margin:0 auto;padding:8px 16px 48px}
+.cfgbody h4{margin:24px 4px 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.ccard{background:var(--panel);border-radius:14px;padding:2px 16px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.crow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-top:1px solid var(--bd)}
+.crow:first-child{border-top:0}
+.crow>div:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.crow button{flex:0 0 auto}
+.muted{color:var(--mut);font-size:12px}
+.ccard.acc{display:flex;align-items:center;gap:14px;padding:16px;flex-wrap:wrap}
+.av{width:56px;height:56px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;overflow:hidden;flex:0 0 auto}
+.av img,.avb img{width:100%;height:100%;object-fit:cover}
+.accinfo{display:flex;flex-direction:column;min-width:0;flex:1 1 160px}
+.accinfo b,.accinfo span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.accbtns{display:flex;gap:8px;flex-wrap:wrap}
+.stepper{display:flex;align-items:center;gap:8px}.stepper b{min-width:28px;text-align:center}
+.ccard.danger{border:1px solid color-mix(in srgb,var(--ac) 40%,transparent)}
+.dng{color:var(--ac);border-color:var(--ac)}
+.avb{width:36px;height:36px;border-radius:50%;padding:0;background:var(--ac);color:#fff;border:0;font-weight:700;overflow:hidden;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.cfgfoot{text-align:center;margin-top:28px}
+.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:120;background:#222;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;max-width:min(92vw,460px);box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.toast[hidden]{display:none}
+@media(max-width:860px){.crow{flex-wrap:wrap}}
+@media print{.cfgpage,.toast{display:none!important}}
 </style>
 <style id="pgcss"></style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -236,11 +265,7 @@ html:not(.locked) #auth{display:none}
  <button class="ib" id="undo" title="Desfazer (Ctrl+Z)" disabled>↶</button><button class="ib" id="redo" title="Refazer (Ctrl+Y)" disabled>↷</button>
  <button class="ib" id="newtop" title="Nova música">＋ Nova</button>
  <button id="stg0">🎤 Palco</button><button class="p" id="print" title="Na janela de impressão, escolha “Salvar como PDF”">🖨<span class="pt"> Imprimir / PDF</span></button>
- <span class="menuwrap"><button class="ib" id="tmore" title="Mais opções">⋯</button>
-  <div class="pop right" id="tpop" hidden>
-   <button id="m-exp">⬇ Exportar tudo</button><button id="m-expo">⬇ Exportar esta música</button><button id="m-imp">⬆ Importar</button><button id="m-ex">Carregar exemplo</button><hr><div class="acct" id="acct"></div><button id="m-sync">🔄 Sincronizar agora</button><button id="m-out">🚪 Sair</button><button id="m-del">🗑 Excluir minha conta</button><hr>
-   <button id="tth">🌓 Tema: Automático</button><button id="m-help">⌨ Atalhos e dicas</button>
-  </div></span>
+ <button class="avb" id="tmore" title="Menu e configurações">👤</button>
 </header>
 <div class="app">
  <div class="editor">
@@ -306,6 +331,49 @@ html:not(.locked) #auth{display:none}
   <div class="sheet" id="sheet"></div></div>
 </div>
 <nav class="mbar"><button data-m="edit" class="on">✏️ Editar</button><button data-m="sheet">📄 Folha</button><button id="mstage">🎤 Palco</button></nav>
+<div id="toast" class="toast" hidden></div>
+<div id="cfg" class="cfgpage" hidden>
+ <div class="cfgbar"><button id="cfgback">← Voltar</button><b>Configurações</b></div>
+ <div class="cfgbody">
+  <section class="ccard acc">
+   <div class="av" id="cfg-av">?</div>
+   <div class="accinfo"><b id="cfg-name">Minha conta</b><span class="muted" id="acct"></span><span class="muted" id="cfg-sync"></span></div>
+   <div class="accbtns"><button id="m-sync">🔄 Sincronizar</button><button id="m-out">Sair</button></div>
+  </section>
+
+  <h4>Aparência</h4>
+  <section class="ccard">
+   <div class="crow"><div><b>Tema</b><span class="muted">Automático segue o modo do seu aparelho. A folha continua branca, como no papel.</span></div>
+    <div class="seg2" id="thseg"><button data-th="">Automático</button><button data-th="light">Claro</button><button data-th="dark">Escuro</button></div></div>
+  </section>
+
+  <h4>Modo palco</h4>
+  <section class="ccard">
+   <div class="crow"><div><b>Tamanho inicial da letra</b><span class="muted">Valor ao abrir o modo palco</span></div><div class="stepper"><button id="pfm">A−</button><b id="pf-v">18</b><button id="pfp">A+</button></div></div>
+   <div class="crow"><div><b>Velocidade da rolagem</b><span class="muted">Valor inicial da rolagem automática</span></div><input type="range" id="pf-spd" min="1" max="10" style="width:140px"></div>
+  </section>
+
+  <h4>Minhas músicas</h4>
+  <section class="ccard">
+   <div class="crow"><div><b>Resumo</b><span class="muted" id="cfg-stats"></span></div></div>
+   <div class="crow"><div><b>Backup completo</b><span class="muted">Baixa todas as músicas e repertórios em um arquivo.</span></div><button id="m-exp">⬇ Exportar tudo</button></div>
+   <div class="crow"><div><b>Música aberta</b><span class="muted">Baixa só a música que você está editando.</span></div><button id="m-expo">⬇ Exportar esta</button></div>
+   <div class="crow"><div><b>Importar arquivo</b><span class="muted">Acrescenta as músicas do arquivo à sua biblioteca.</span></div><button id="m-imp">⬆ Importar</button></div>
+   <div class="crow"><div><b>Música de exemplo</b><span class="muted">Adiciona “Abra os Olhos do Meu Coração”.</span></div><button id="m-ex">Adicionar</button></div>
+  </section>
+
+  <h4>Ajuda</h4>
+  <section class="ccard">
+   <div class="crow"><div><b>Atalhos e dicas</b><span class="muted">Como escrever acordes, desfazer, PDF e backup.</span></div><button id="m-help">Abrir</button></div>
+  </section>
+
+  <h4>Zona de perigo</h4>
+  <section class="ccard danger">
+   <div class="crow"><div><b>Excluir minha conta</b><span class="muted">Apaga a conta e todas as cifras da nuvem. Não dá para desfazer.</span></div><button id="m-del" class="dng">Excluir conta</button></div>
+  </section>
+  <p class="muted cfgfoot">🎼 Montador de Cifras</p>
+ </div>
+</div>
 <div id="helpbox" class="modal" hidden><div class="mbox">
  <h3>Atalhos e dicas</h3>
  <ul>
@@ -359,7 +427,9 @@ let VIEW="song";
 const curSet=()=>LIB.sets.find(x=>x.id===LIB.curSet);
 const songBy=id=>LIB.songs.find(s=>s.id===id);
 function armed(b){if(b._a){clearTimeout(b._t);b._a=0;b.textContent=b._o;return true}b._o=b.textContent;b._a=1;b.textContent="Confirmar?";b._t=setTimeout(()=>{b._a=0;b.textContent=b._o},3000);return false}
-const msg=t=>{const m=$("msg");m.textContent=t;m.style.display=t?"block":"none"};
+let TT=null;
+function toast(t){const e=$("toast");if(!e)return;if(!t){e.hidden=true;return}e.textContent=t;e.hidden=false;clearTimeout(TT);TT=setTimeout(()=>{e.hidden=true},4500)}
+const msg=t=>{const m=$("msg");m.textContent=t;m.style.display=t?"block":"none";toast(t)};
 const nz=x=>(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const lyr=s=>(s.sections||[]).map(x=>(x.text||"").replace(/\[[^\]]+\]|\{[^}]*\}/g," ").replace(/\s+/g," ")).join(" / ");
 function matchSong(s,q){q=nz(q).trim();if(!q)return true;return nz([s.title,s.artist,(s.tags||[]).join(" "),lyr(s)].join(" ")).includes(q)}
@@ -840,19 +910,35 @@ $("swq").oninput=renderSw;
 $("swnew").onclick=()=>{$("swp").hidden=true;$("newtop").click()};
 $("newtop").onclick=()=>{$("new").onclick();setM("edit")};
 $("back2").onclick=()=>$("back").onclick();
-$("tmore").onclick=e=>{e.stopPropagation();$("tpop").hidden=!$("tpop").hidden};
-$("tpop").onclick=e=>{const b=e.target.closest("button");if(b&&!["tth","m-del","m-out"].includes(b.id))$("tpop").hidden=true};
+/* ---- página de configurações ---- */
+let PREFS={};try{PREFS=JSON.parse(localStorage.getItem("cifras_prefs")||"{}")}catch(e){}
+if(PREFS.fs)FS=PREFS.fs;if(PREFS.spd)$("spd").value=PREFS.spd;
+const savePrefs=()=>{try{localStorage.setItem("cifras_prefs",JSON.stringify(PREFS))}catch(e){}};
+function openCfg(){
+ const n=LIB.songs.length,m=LIB.sets.length;
+ $("cfg-stats").textContent=n+" música"+(n===1?"":"s")+" · "+m+" repertório"+(m===1?"":"s");
+ $("cfg-sync").textContent=$("sv").textContent;
+ document.querySelectorAll("[data-th]").forEach(b=>b.classList.toggle("on",b.dataset.th===TH[thi]));
+ $("pf-v").textContent=FS;$("pf-spd").value=$("spd").value;
+ $("cfg").hidden=false;document.body.style.overflow="hidden";$("cfg").scrollTop=0;
+}
+function closeCfg(){$("cfg").hidden=true;document.body.style.overflow=""}
+$("tmore").onclick=openCfg;$("cfgback").onclick=closeCfg;
 $("m-exp").onclick=()=>$("expAll").click();$("m-expo").onclick=()=>$("expOne").click();
-$("m-imp").onclick=()=>$("imp").click();$("m-ex").onclick=()=>$("ex").click();
+$("m-imp").onclick=()=>$("imp").click();
+$("m-ex").onclick=()=>{$("ex").click();closeCfg();toast("Música de exemplo adicionada.")};
+$("pfm").onclick=()=>{FS=Math.max(10,FS-2);PREFS.fs=FS;savePrefs();$("pf-v").textContent=FS};
+$("pfp").onclick=()=>{FS=Math.min(48,FS+2);PREFS.fs=FS;savePrefs();$("pf-v").textContent=FS};
+$("pf-spd").oninput=()=>{$("spd").value=$("pf-spd").value;PREFS.spd=+$("pf-spd").value;savePrefs()};
 $("m-help").onclick=()=>{$("helpbox").hidden=false};
 $("hclose").onclick=()=>{$("helpbox").hidden=true};
 $("helpbox").onclick=e=>{if(e.target===$("helpbox"))$("helpbox").hidden=true};
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("helpbox").hidden=true;$("swp").hidden=true;$("tpop").hidden=true}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("helpbox").hidden=true;$("swp").hidden=true;closeCfg()}});
 document.addEventListener("click",e=>{document.querySelectorAll(".pop").forEach(p=>{if(!p.parentElement.contains(e.target))p.hidden=true})});
 const TH=["","light","dark"],THN=["Automático","Claro","Escuro"];let thi=0;
 try{thi=Math.max(0,TH.indexOf(localStorage.getItem("cifras_theme")||""))}catch(e){}
-function applyTheme(){const t=TH[thi];if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;$("tth").textContent="🌓 Tema: "+THN[thi]}
-$("tth").onclick=e=>{e.stopPropagation();thi=(thi+1)%3;try{localStorage.setItem("cifras_theme",TH[thi])}catch(x){}applyTheme()};
+function applyTheme(){const t=TH[thi];if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;document.querySelectorAll("[data-th]").forEach(b=>b.classList.toggle("on",b.dataset.th===TH[thi]))}
+document.querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>{thi=Math.max(0,TH.indexOf(b.dataset.th));try{localStorage.setItem("cifras_theme",TH[thi])}catch(x){}applyTheme()});
 applyTheme();
 /* ---- metrônomo (modo palco) ---- */
 let MT={on:false,bpm:80,per:4,ctx:null,nx:0,bt:0,id:null,sid:null};
@@ -993,6 +1079,14 @@ async function syncNow(manual){
   if(manual)msg(SYNCERR?"Não foi possível sincronizar agora.":"Tudo sincronizado.");
  }finally{BUSY=false}
 }
+function setAcct(u){
+ const md=u.user_metadata||{},name=md.full_name||md.name||"",em=u.email||"",ini=((name||em||"?").trim()[0]||"?").toUpperCase(),pic=md.avatar_url||md.picture;
+ $("acct").textContent=em;$("cfg-name").textContent=name||"Minha conta";
+ [$("tmore"),$("cfg-av")].forEach(el=>{
+  el.textContent=ini;
+  if(pic){const i=document.createElement("img");i.src=pic;i.alt="";i.referrerPolicy="no-referrer";i.onerror=()=>{el.textContent=ini};el.textContent="";el.appendChild(i)}
+ });
+}
 async function bootUser(user){
  USER=user;LKEY="cifras_lib_"+user.id;
  let loc=null;try{loc=JSON.parse(localStorage.getItem(LKEY)||"null")}catch(e){}
@@ -1005,7 +1099,7 @@ async function bootUser(user){
  S=LIB.songs.find(x=>x.id===LIB.cur)||LIB.songs[0];LIB.cur=S.id;VIEW="song";
  try{localStorage.setItem(LKEY,JSON.stringify(LIB))}catch(e){}
  fields();editor();preview();lib();updUndo();setM("edit");
- $("acct").textContent="👤 "+(user.email||"conta");
+ setAcct(user);
  document.documentElement.classList.remove("locked");
  setSync(SYNCERR?"err":"ok");schedPush();
 }
