@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="locked">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -189,10 +189,44 @@ button:disabled{opacity:.35;cursor:default}
 .mbpm{min-width:34px;text-align:center;padding:3px 6px;border-radius:6px;background:#2a2e35}
 .mbpm.tick{background:#ffcc4d;color:#111}
 #sbar button.on{background:var(--ac);border-color:var(--ac)}
+/* ---- v8: login ---- */
+html.locked body>header.top,html.locked .app,html.locked .mbar{display:none!important}
+html:not(.locked) #auth{display:none}
+.authwrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.abox{background:var(--panel);border-radius:16px;padding:24px;max-width:380px;width:100%;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+.alogo{font-size:22px;font-weight:700;margin-bottom:4px}.asub{color:var(--mut);margin:0 0 14px}
+.aseg{display:flex;margin-bottom:12px}.aseg button{flex:1;padding:7px}
+.gbtn{width:100%;display:flex;gap:10px;justify-content:center;align-items:center;padding:10px;background:#fff;color:#222;border:1px solid #cfd3d8;font-weight:600}
+.aor{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:12px;margin:12px 0 2px}.aor:before,.aor:after{content:"";flex:1;border-top:1px solid var(--bd)}
+.wide{width:100%;margin-top:12px;padding:10px}
+.linkb{border:0;background:transparent;color:var(--ac);padding:10px 0 0;width:100%}
+.apriv{display:block;color:var(--mut);margin-top:12px;line-height:1.4}
+.acct{padding:6px 10px;font-size:12px;color:var(--mut);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 <style id="pgcss"></style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
 <body>
+<div id="auth" class="authwrap">
+ <div class="abox">
+  <div class="alogo">🎼 Cifras</div>
+  <div id="aload" class="asub">Carregando…</div>
+  <div id="aform" hidden>
+   <p class="asub" id="atitle">Entre para guardar suas cifras na nuvem</p>
+   <div class="seg2 aseg" id="aseg"><button data-a="in" class="on">Entrar</button><button data-a="up">Criar conta</button></div>
+   <button class="gbtn" id="gbtn"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg> Continuar com Google</button>
+   <div class="aor" id="aor">ou</div>
+   <div id="aemail-w"><label>E-mail</label><input id="aemail" type="email" autocomplete="email"></div>
+   <label>Senha</label><input id="apass" type="password" autocomplete="current-password" placeholder="mínimo 8 caracteres">
+   <div id="aconf-w" hidden><label>Repita a senha</label><input id="aconf" type="password" autocomplete="new-password"></div>
+   <button class="p wide" id="asubmit">Entrar</button>
+   <button class="linkb" id="aforgot">Esqueci a senha</button>
+   <div class="help" id="amsg" hidden style="margin-top:10px"></div>
+   <small class="apriv">Suas cifras ficam guardadas na sua conta e só você tem acesso. Você pode exportar tudo ou excluir a conta e os dados quando quiser, pelo menu ⋯.</small>
+  </div>
+ </div>
+</div>
+
 <header class="top">
  <b class="logo">🎼 Cifras</b>
  <div class="ttlwrap"><button class="ttlb" id="ttlbtn" title="Trocar de música"><span id="ttl"></span> ▾</button>
@@ -204,7 +238,7 @@ button:disabled{opacity:.35;cursor:default}
  <button id="stg0">🎤 Palco</button><button class="p" id="print" title="Na janela de impressão, escolha “Salvar como PDF”">🖨<span class="pt"> Imprimir / PDF</span></button>
  <span class="menuwrap"><button class="ib" id="tmore" title="Mais opções">⋯</button>
   <div class="pop right" id="tpop" hidden>
-   <button id="m-exp">⬇ Exportar tudo</button><button id="m-expo">⬇ Exportar esta música</button><button id="m-imp">⬆ Importar</button><button id="m-ex">Carregar exemplo</button><hr>
+   <button id="m-exp">⬇ Exportar tudo</button><button id="m-expo">⬇ Exportar esta música</button><button id="m-imp">⬆ Importar</button><button id="m-ex">Carregar exemplo</button><hr><div class="acct" id="acct"></div><button id="m-sync">🔄 Sincronizar agora</button><button id="m-out">🚪 Sair</button><button id="m-del">🗑 Excluir minha conta</button><hr>
    <button id="tth">🌓 Tema: Automático</button><button id="m-help">⌨ Atalhos e dicas</button>
   </div></span>
 </header>
@@ -296,6 +330,10 @@ button:disabled{opacity:.35;cursor:default}
  <div id="stg" class="sheet stage"></div>
 </div>
 <script>
+/* ===== CONFIGURE AQUI (veja o README) ===== */
+const SUPABASE_URL="COLE_AQUI_A_URL_DO_PROJETO";   // ex: https://abcdefgh.supabase.co
+const SUPABASE_KEY="COLE_AQUI_A_CHAVE_ANON_PUBLICA"; // chave "anon" / "publishable" (pública). NUNCA use a service_role.
+/* ========================================= */
 const EX={title:"Abra os Olhos do Meu Coração",artist:"David Quinlan",key:"C major",time:"4/4",shift:0,sections:[
 {name:"Introdução",text:"| [C] [G/B] [F/A] [C] :||"},
 {name:"Estrofe",text:"[C]Abra os olhos do meu coração, [G]Abra os olhos do meu coração\nQuero [F]ver, Quero [C]te [G]ver"},
@@ -313,9 +351,10 @@ if(!LIB||!LIB.songs||!LIB.songs.length){
 S=LIB.songs.find(s=>s.id===LIB.cur)||LIB.songs[0];LIB.cur=S.id;LIB.sets=LIB.sets||[];
 let DL=null;
 try{if(window.claude)claude.use("downloads").then(d=>DL=d).catch(()=>{})}catch(e){}
-const persist=()=>{try{localStorage.setItem("cifras_lib",JSON.stringify(LIB));return true}catch(e){return false}};
+let LKEY="cifras_lib_anon",USER=null,sb=null;
+const persist=()=>{let ok=true;try{localStorage.setItem(LKEY,JSON.stringify(LIB))}catch(e){ok=false}if(typeof schedPush==="function")schedPush();return ok};
 let HID=null,HT=null,MODE="cards";const HIST={};
-const save=()=>{S.updated=Date.now();const ok=persist();lib();HID=S.id;clearTimeout(HT);HT=setTimeout(snap,500);updUndo();const sv=$("sv");sv.textContent=ok?"✓ Salvo neste navegador":"⚠ Não foi possível salvar";sv.className="sv"+(ok?"":" bad");$("dot").className="dot"+(ok?"":" bad")};
+const save=()=>{S.updated=Date.now();const ok=persist();lib();HID=S.id;clearTimeout(HT);HT=setTimeout(snap,500);updUndo();const sv=$("sv");sv.textContent=ok?(USER?"☁ Salvando…":"✓ Salvo neste navegador"):"⚠ Não foi possível salvar";sv.className="sv"+(ok?"":" bad");$("dot").className="dot"+(ok?"":" bad")};
 let VIEW="song";
 const curSet=()=>LIB.sets.find(x=>x.id===LIB.curSet);
 const songBy=id=>LIB.songs.find(s=>s.id===id);
@@ -342,7 +381,7 @@ function lib(){
   let snip="";
   if(qn&&!nz((s.title||"")+" "+(s.artist||"")+" "+(s.tags||[]).join(" ")).includes(qn)){const ly=lyr(s),i=nz(ly).indexOf(qn);if(i>=0)snip="…"+ly.slice(Math.max(0,i-18),i+qn.length+28).trim()+"…"}
   d.innerHTML=`<span><b class="star" title="Favorita">${s.fav?"★":"☆"}</b> ${esc(s.title||"(sem título)")}</span><small>${esc(s.artist||"")}</small>${snip?`<div class="snip">${esc(snip)}</div>`:""}`;
-  d.querySelector(".star").onclick=e=>{e.stopPropagation();s.fav=!s.fav;if(s===S)$("fav").checked=!!s.fav;persist();lib()};
+  d.querySelector(".star").onclick=e=>{e.stopPropagation();s.fav=!s.fav;s.updated=Date.now();if(s===S)$("fav").checked=!!s.fav;persist();lib()};
   d.onclick=()=>{S=s;LIB.cur=s.id;VIEW="song";fields();all();tab("edit")};
   l.appendChild(d);
  });
@@ -664,7 +703,7 @@ $("capo").oninput=()=>{S.capo=Math.max(0,Math.min(11,parseInt($("capo").value)||
 $("capoS").onchange=()=>{S.capoShapes=$("capoS").checked;save();preview()};
 $("chart").onchange=()=>{S.chart=$("chart").checked;save();preview()};
 /* ---- repertórios ---- */
-const touchSets=()=>{persist();sets();if(VIEW==="set")preview()};
+const touchSets=()=>{const c=curSet();if(c)c.updated=Date.now();persist();sets();if(VIEW==="set")preview()};
 function sets(){
  const cs=curSet()||LIB.sets[0];if(cs)LIB.curSet=cs.id;
  $("setsel").innerHTML=LIB.sets.map(x=>`<option value="${x.id}"${cs&&x.id===cs.id?" selected":""}>${esc(x.name||"(sem nome)")}</option>`).join("")||"<option>(nenhum repertório)</option>";
@@ -692,8 +731,8 @@ function sets(){
 }
 $("setsel").onchange=e=>{LIB.curSet=e.target.value;touchSets()};
 $("snew").onclick=()=>{const x={id:uid(),name:"Novo repertório",items:[]};LIB.sets.push(x);LIB.curSet=x.id;touchSets();$("sname").focus();$("sname").select()};
-$("sname").oninput=e=>{const c=curSet();if(c){c.name=e.target.value;persist();const o=$("setsel").selectedOptions[0];if(o)o.textContent=c.name||"(sem nome)"}};
-$("sdel").onclick=()=>{const c=curSet();if(!c||!armed($("sdel")))return;LIB.sets=LIB.sets.filter(x=>x!==c);LIB.curSet=null;touchSets()};
+$("sname").oninput=e=>{const c=curSet();if(c){c.name=e.target.value;c.updated=Date.now();persist();const o=$("setsel").selectedOptions[0];if(o)o.textContent=c.name||"(sem nome)"}};
+$("sdel").onclick=()=>{const c=curSet();if(!c||!armed($("sdel")))return;tomb("set",c.id);LIB.sets=LIB.sets.filter(x=>x!==c);LIB.curSet=null;touchSets()};
 $("saddb").onclick=()=>{
  if(!LIB.songs.length)return;
  let c=curSet();if(!c){c={id:uid(),name:"Repertório 1",items:[]};LIB.sets.push(c);LIB.curSet=c.id}
@@ -728,7 +767,7 @@ $("ex").onclick=()=>{S=clone(EX);S.id=uid();LIB.songs.push(S);LIB.cur=S.id;field
 $("q").oninput=lib;
 $("new").onclick=()=>{S={id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",shift:0,sections:[{name:"Estrofe",text:""}]};LIB.songs.push(S);LIB.cur=S.id;VIEW="song";fields();all();tab("edit");$("title").select()};
 $("dup").onclick=()=>{S={...clone(S),id:uid(),title:(S.title||"")+" (cópia)"};LIB.songs.push(S);LIB.cur=S.id;fields();all()};
-$("del").onclick=()=>{if(!armed($("del")))return;$("pop").hidden=true;LIB.sets.forEach(x=>x.items=x.items.filter(i=>i.songId!==S.id));LIB.songs=LIB.songs.filter(s=>s!==S);if(!LIB.songs.length)LIB.songs.push({id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",shift:0,sections:[{name:"Estrofe",text:""}]});S=LIB.songs[0];LIB.cur=S.id;fields();all()};
+$("del").onclick=()=>{if(!armed($("del")))return;$("pop").hidden=true;LIB.sets.forEach(x=>{const n=x.items.length;x.items=x.items.filter(i=>i.songId!==S.id);if(x.items.length!==n)x.updated=Date.now()});tomb("song",S.id);LIB.songs=LIB.songs.filter(s=>s!==S);if(!LIB.songs.length)LIB.songs.push({id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",shift:0,sections:[{name:"Estrofe",text:""}]});S=LIB.songs[0];LIB.cur=S.id;fields();all()};
 $("expAll").onclick=()=>out("minhas-cifras.json",{app:"cifras",version:2,songs:LIB.songs,sets:LIB.sets});
 $("expOne").onclick=()=>out(fname(S.title)+".json",{app:"cifras",version:1,songs:[S]});
 $("imp").onclick=()=>$("file").click();
@@ -802,7 +841,7 @@ $("swnew").onclick=()=>{$("swp").hidden=true;$("newtop").click()};
 $("newtop").onclick=()=>{$("new").onclick();setM("edit")};
 $("back2").onclick=()=>$("back").onclick();
 $("tmore").onclick=e=>{e.stopPropagation();$("tpop").hidden=!$("tpop").hidden};
-$("tpop").onclick=e=>{const b=e.target.closest("button");if(b&&b.id!=="tth")$("tpop").hidden=true};
+$("tpop").onclick=e=>{const b=e.target.closest("button");if(b&&!["tth","m-del","m-out"].includes(b.id))$("tpop").hidden=true};
 $("m-exp").onclick=()=>$("expAll").click();$("m-expo").onclick=()=>$("expOne").click();
 $("m-imp").onclick=()=>$("imp").click();$("m-ex").onclick=()=>$("ex").click();
 $("m-help").onclick=()=>{$("helpbox").hidden=false};
@@ -850,6 +889,156 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")mToggle(false)});
 $("tags").oninput=()=>{S.tags=$("tags").value.split(",").map(x=>x.trim()).filter(Boolean);save()};
 $("fav").onchange=()=>{S.fav=$("fav").checked;save()};
 all();setM("edit");
+/* ===== LOGIN OBRIGATÓRIO + SINCRONIZAÇÃO (Supabase) ===== */
+const CONFIGURED=/^https:\/\/[a-z0-9-]+\.supabase\.(co|in)/i.test(SUPABASE_URL)&&SUPABASE_KEY.length>40;
+let AMODE="in",BOOT=false,RECOV=false,PT=null,PUSHING=false,AGAIN=false,BUSY=false,SYNCERR=null;
+const aerr=m=>{const e=$("amsg");e.textContent=m||"";e.hidden=!m};
+const ERRS={"Invalid login credentials":"E-mail ou senha incorretos.","User already registered":"Este e-mail já tem conta. Use a aba Entrar.","Email not confirmed":"Confirme seu e-mail antes de entrar (veja a caixa de entrada e o spam).","New password should be different from the old password.":"A nova senha precisa ser diferente da anterior."};
+const trErr=m=>ERRS[m]||(/rate limit|too many/i.test(m||"")?"Muitas tentativas. Aguarde alguns minutos e tente de novo.":(m||"Algo deu errado. Tente de novo."));
+function showForm(){$("aload").hidden=true;$("aform").hidden=false}
+function setA(m){
+ AMODE=m;document.querySelectorAll("[data-a]").forEach(b=>b.classList.toggle("on",b.dataset.a===m));
+ const rec=m==="rec",up=m==="up";
+ $("aseg").hidden=rec;$("gbtn").hidden=rec;$("aor").hidden=rec;$("aemail-w").hidden=rec;$("aconf-w").hidden=!(up||rec);$("aforgot").hidden=m!=="in";
+ $("apass").autocomplete=m==="in"?"current-password":"new-password";
+ $("asubmit").textContent=rec?"Salvar nova senha":up?"Criar conta":"Entrar";
+ $("atitle").textContent=rec?"Defina uma nova senha":up?"Crie sua conta para guardar suas cifras":"Entre para guardar suas cifras na nuvem";
+ aerr("");
+}
+document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>setA(b.dataset.a));
+["aemail","apass","aconf"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")$("asubmit").click()}));
+$("asubmit").onclick=async()=>{
+ aerr("");const email=$("aemail").value.trim(),pw=$("apass").value;
+ if(AMODE!=="rec"&&!/^\S+@\S+\.\S+$/.test(email)){aerr("Digite um e-mail válido.");return}
+ if(pw.length<8){aerr("A senha precisa ter pelo menos 8 caracteres.");return}
+ if((AMODE==="up"||AMODE==="rec")&&pw!==$("aconf").value){aerr("As senhas não conferem.");return}
+ const bt=$("asubmit");bt.disabled=true;
+ try{
+  if(AMODE==="in"){const{error}=await sb.auth.signInWithPassword({email,password:pw});if(error)throw error}
+  else if(AMODE==="up"){
+   const{data,error}=await sb.auth.signUp({email,password:pw,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;
+   if(!data.session){setA("in");$("aemail").value=email;aerr("Conta criada! Enviamos um e-mail de confirmação. Clique no link e depois entre.")}
+  }else{
+   const{error}=await sb.auth.updateUser({password:pw});if(error)throw error;
+   try{history.replaceState(null,"",location.pathname)}catch(e){}
+   RECOV=false;
+   if(USER)document.documentElement.classList.remove("locked");
+   else{const{data}=await sb.auth.getSession();if(data.session)startSession(data.session.user)}
+  }
+ }catch(e){aerr(trErr(e.message))}finally{bt.disabled=false}
+};
+$("aforgot").onclick=async()=>{
+ const email=$("aemail").value.trim();
+ if(!/^\S+@\S+\.\S+$/.test(email)){aerr("Digite seu e-mail acima e clique de novo.");return}
+ const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+ aerr(error?trErr(error.message):"Se este e-mail tiver conta, enviamos um link para redefinir a senha.");
+};
+$("gbtn").onclick=async()=>{aerr("");const{error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});if(error)aerr(trErr(error.message))};
+
+/* ---- sincronização ---- */
+function setSync(s,d){
+ const T={ok:"☁ Sincronizado",sync:"☁ Sincronizando…",err:"⚠ Erro ao sincronizar"},bad=s==="err";
+ $("sv").textContent=T[s]||"";$("sv").title=d||"";$("sv").className="sv"+(bad?" bad":"");$("dot").className="dot"+(bad?" bad":"");
+}
+function tomb(kind,id){LIB.dels=(LIB.dels||[]).filter(t=>t.id!==id);LIB.dels.push({id,kind,t:Date.now()})}
+function schedPush(){if(!USER)return;clearTimeout(PT);PT=setTimeout(push,1500)}
+async function push(){
+ if(!USER||!sb)return;if(PUSHING){AGAIN=true;return}
+ PUSHING=true;
+ try{
+  LIB.synced=LIB.synced||{};LIB.dels=LIB.dels||[];
+  const rows=[],add=(kind,o)=>{const u=o.updated||0;if(!(o.id in LIB.synced)||u>LIB.synced[o.id])rows.push({user_id:USER.id,id:o.id,kind,data:o,updated:u||Date.now(),deleted:false})};
+  LIB.songs.forEach(s=>add("song",s));LIB.sets.forEach(s=>add("set",s));
+  LIB.dels.forEach(t=>rows.push({user_id:USER.id,id:t.id,kind:t.kind,data:{},updated:t.t,deleted:true}));
+  if(rows.length){
+   setSync("sync");
+   const{error}=await sb.from("cifras_items").upsert(rows,{onConflict:"user_id,id"});
+   if(error)throw error;
+   rows.forEach(r=>{LIB.synced[r.id]=r.updated});
+   const done=new Set(rows.filter(r=>r.deleted).map(r=>r.id));LIB.dels=LIB.dels.filter(t=>!done.has(t.id));
+   try{localStorage.setItem(LKEY,JSON.stringify(LIB))}catch(e){}
+  }
+  SYNCERR=null;setSync("ok");
+ }catch(e){SYNCERR=e;setSync("err",e&&e.message||String(e))}
+ finally{PUSHING=false;if(AGAIN){AGAIN=false;schedPush()}}
+}
+async function pull(){
+ const{data,error}=await sb.from("cifras_items").select("id,kind,data,updated,deleted");
+ if(error){SYNCERR=error;setSync("err",error.message);return false}
+ LIB.synced=LIB.synced||{};LIB.dels=LIB.dels||[];
+ const tb=new Map(LIB.dels.map(t=>[t.id,t]));let changed=false;
+ data.forEach(r=>{
+  const t=tb.get(r.id);
+  if(t){if(!r.deleted&&r.updated>t.t)tb.delete(r.id);else return}
+  const list=r.kind==="set"?LIB.sets:LIB.songs,i=list.findIndex(x=>x.id===r.id),lu=i>=0?(list[i].updated||0):-1;
+  if(r.deleted){if(i>=0&&lu<=r.updated){list.splice(i,1);changed=true}LIB.synced[r.id]=r.updated;return}
+  if(i<0||lu<r.updated){const o=r.data||{};o.id=r.id;o.updated=r.updated;if(i>=0)list[i]=o;else list.push(o);LIB.synced[r.id]=r.updated;changed=true}
+  else if(lu===r.updated)LIB.synced[r.id]=r.updated;
+ });
+ LIB.dels=[...tb.values()];SYNCERR=null;
+ return changed;
+}
+const blankSong=()=>({id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",shift:0,sections:[{name:"Estrofe",text:""}]});
+async function syncNow(manual){
+ if(!USER||BUSY)return;BUSY=true;
+ try{
+  await push();const changed=await pull();
+  if(changed){
+   if(!LIB.songs.length)LIB.songs.push(blankSong());
+   S=LIB.songs.find(x=>x.id===S.id)||LIB.songs[0];LIB.cur=S.id;
+   try{localStorage.setItem(LKEY,JSON.stringify(LIB))}catch(e){}
+   fields();editor();preview();lib();if(MODE==="text")$("ttxt").value=ser(S.sections);
+  }
+  setSync(SYNCERR?"err":"ok");
+  if(manual)msg(SYNCERR?"Não foi possível sincronizar agora.":"Tudo sincronizado.");
+ }finally{BUSY=false}
+}
+async function bootUser(user){
+ USER=user;LKEY="cifras_lib_"+user.id;
+ let loc=null;try{loc=JSON.parse(localStorage.getItem(LKEY)||"null")}catch(e){}
+ if(!loc||!loc.songs){
+  try{if(!localStorage.getItem("cifras_legacy_taken")){const old=JSON.parse(localStorage.getItem("cifras_lib")||"null");if(old&&old.songs&&old.songs.length){loc=old;localStorage.setItem("cifras_legacy_taken",user.id)}}}catch(e){}
+ }
+ LIB=loc&&loc.songs?loc:{songs:[],sets:[]};LIB.sets=LIB.sets||[];LIB.dels=LIB.dels||[];LIB.synced=LIB.synced||{};
+ setSync("sync");await pull();
+ if(!LIB.songs.length)LIB.songs.push({id:uid(),...clone(EX)});
+ S=LIB.songs.find(x=>x.id===LIB.cur)||LIB.songs[0];LIB.cur=S.id;VIEW="song";
+ try{localStorage.setItem(LKEY,JSON.stringify(LIB))}catch(e){}
+ fields();editor();preview();lib();updUndo();setM("edit");
+ $("acct").textContent="👤 "+(user.email||"conta");
+ document.documentElement.classList.remove("locked");
+ setSync(SYNCERR?"err":"ok");schedPush();
+}
+async function startSession(user){if(BOOT||USER)return;BOOT=true;try{await bootUser(user)}catch(e){console.error(e);showForm();aerr("Erro ao carregar suas cifras: "+(e.message||e))}BOOT=false}
+$("m-sync").onclick=()=>syncNow(true);
+$("m-out").onclick=async()=>{
+ await push();
+ if(SYNCERR&&!armed($("m-out"))){msg("Há alterações que não foram sincronizadas. Exporte um backup (⋯ → Exportar tudo) ou clique de novo para sair mesmo assim.");return}
+ try{localStorage.removeItem(LKEY)}catch(e){}
+ await sb.auth.signOut();location.reload();
+};
+$("m-del").onclick=async()=>{
+ if(!armed($("m-del"))){msg("Clique de novo para excluir sua conta e TODAS as cifras na nuvem. Não dá para desfazer. Antes, exporte um backup se quiser guardar.");return}
+ const{error}=await sb.rpc("delete_my_account");
+ if(error){msg("Não foi possível excluir a conta: "+error.message);return}
+ try{localStorage.removeItem(LKEY)}catch(e){}
+ await sb.auth.signOut();location.reload();
+};
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&USER)syncNow()});
+addEventListener("online",()=>{if(USER)syncNow()});
+setInterval(()=>{if(USER&&!document.hidden)syncNow()},60000);
+(async()=>{
+ if(!window.supabase){$("aload").textContent="Não foi possível carregar o serviço de login. Verifique sua conexão e recarregue a página.";return}
+ if(!CONFIGURED){$("aload").innerHTML="⚙️ Falta configurar o Supabase. Abra o <b>index.html</b> e preencha <b>SUPABASE_URL</b> e <b>SUPABASE_KEY</b> no início do script (veja o README).";return}
+ sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ sb.auth.onAuthStateChange((ev,session)=>{
+  if(ev==="PASSWORD_RECOVERY"){RECOV=true;document.documentElement.classList.add("locked");showForm();setA("rec");return}
+  if(session&&!RECOV)startSession(session.user);
+ });
+ const{data}=await sb.auth.getSession();
+ if(data.session&&!RECOV)startSession(data.session.user);
+ else if(!data.session&&!RECOV)showForm();
+})();
 </script>
 </body>
 </html>
