@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Monte, transponha e imprima cifras em PDF. Biblioteca, repertórios e modo palco.">
-<meta name="theme-color" content="#c8102e">
+<meta name="theme-color" content="#c8102e"><link rel="manifest" href="manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="apple-touch-icon" href="icon.svg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎼%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Open+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <title>Montador de Cifras</title>
@@ -232,6 +232,12 @@ html:not(.locked) #auth{display:none}
 @media(max-width:860px){.crow{flex-wrap:wrap}}
 @media print{.cfgpage,.toast{display:none!important}}
 </style>
+<style>
+.tabl{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;white-space:pre;color:#333}
+.shv{position:fixed;inset:0;z-index:110;background:var(--bg);overflow:auto;padding-bottom:env(safe-area-inset-bottom,0px)}.shv[hidden]{display:none}
+.shbar{position:sticky;top:0;z-index:2;display:flex;gap:8px;align-items:center;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;background:var(--panel);border-bottom:1px solid var(--bd)}
+.shbar b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.shv .sheet{margin:12px auto}
+</style>
 <style id="pgcss"></style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -305,8 +311,8 @@ html:not(.locked) #auth{display:none}
    <label style="margin-top:0">Minhas músicas (<span id="cnt">0</span>)</label>
    <input id="q" placeholder="Buscar por título, artista ou letra…"><div class="chips" id="tagbar"></div>
    <div id="list"></div>
-   <div class="bar"><button class="p" id="new">+ Nova</button><span class="menuwrap"><button id="more">⋯ Mais</button><div class="pop" id="pop" hidden><button id="dup">Duplicar esta</button><button id="del">Excluir esta</button><hr><button id="expOne">⬇ Exportar esta</button><button id="expAll">⬇ Exportar tudo</button><button id="imp">⬆ Importar</button><button id="ex">Carregar exemplo</button></div></span><input type="file" id="file" accept=".json,application/json" hidden></div>
-   <div class="help">Suas músicas ficam salvas neste navegador. Exporte um arquivo para fazer backup ou passar para outra pessoa.</div>
+   <div class="bar"><button class="p" id="new">+ Nova</button><span class="menuwrap"><button id="more">⋯ Mais</button><div class="pop" id="pop" hidden><button id="dup">Duplicar esta</button><button id="del">Excluir esta</button><hr><button id="shOne">🔗 Compartilhar esta</button><button id="trashb">🗑 Lixeira</button><button id="expOne">⬇ Exportar esta</button><button id="expAll">⬇ Exportar tudo</button><button id="imp">⬆ Importar</button><button id="ex">Carregar exemplo</button></div></span><input type="file" id="file" accept=".json,application/json" hidden></div>
+   <div class="help">Suas músicas ficam na sua conta (nuvem) e neste aparelho. Use 🔗 Compartilhar para enviar por link ou Exportar para backup.</div>
   </section>
 
   <section id="t-sets" class="tab lib" hidden>
@@ -316,7 +322,7 @@ html:not(.locked) #auth{display:none}
    <div class="bar"><button id="snew">+ Novo</button><button id="sdel">Excluir</button></div>
    <div id="sitems"></div>
    <div class="row" style="margin-top:6px"><select id="sadd"></select><button style="flex:0 0 auto" id="saddb">+ Adicionar</button></div>
-   <div class="bar"><button class="p" id="sview">👁 Ver / imprimir repertório</button><button id="back" style="display:none">← Voltar à música</button></div>
+   <div class="bar"><button class="p" id="sview">👁 Ver / imprimir repertório</button><button id="sshare">🔗 Link</button><button id="back" style="display:none">← Voltar à música</button></div>
   </section>
  </div>
  <div class="wrap">
@@ -383,10 +389,12 @@ html:not(.locked) #auth{display:none}
   <li>Prefere o formato clássico? Use <b>✎ Texto</b> na aba Editar.</li>
   <li>O <b>Tom original</b> diz em que tom a cifra foi escrita; o tom de saída você escolhe na barra sobre a folha.</li>
   <li>Para PDF: <b>Imprimir / PDF</b> e, na janela, “Salvar como PDF”. Desmarque “Cabeçalhos e rodapés”.</li>
-  <li>Suas músicas ficam só neste navegador: use <b>Exportar tudo</b> para fazer backup.</li>
+  <li>Suas músicas ficam na sua conta e em cache neste aparelho (funciona offline). Use <b>Exportar tudo</b> para backup e <b>🔗 Compartilhar</b> para enviar por link.</li>
  </ul>
  <button class="p" id="hclose">Fechar</button>
 </div></div>
+<div id="shv" class="shv" hidden><div class="shbar"><button id="shx">✕ Fechar</button><b id="shttl"></b><button class="p" id="shimp">💾 Salvar na minha conta</button></div><div class="sheet" id="shsheet"></div></div>
+<div id="trashbox" class="modal" hidden><div class="mbox"><h3>Lixeira</h3><div id="trashl"></div><button class="p" id="tclose" style="margin-top:12px">Fechar</button></div></div>
 <div id="tip" class="tip"></div>
 <div id="stage" hidden>
  <div id="sbar">
@@ -479,7 +487,7 @@ function origIdx(sg){const m=(sg.key||"").match(/^\s*([A-G][#b]?)/);if(m)return 
 function dgc(p){const m=p.match(/^([A-G][#b]?)(.*)$/);return m?DGN[(IDX[m[1]]-DEG+12)%12]+m[2]:p}
 function tc(c,k){return c.split("/").map(p=>DEG!==null?dgc(p):tn(p,k)).join("/")}
 function tcr(c,k){return c.split("/").map(p=>tn(p,k)).join("/")}
-function line(t,k){
+function line(t,k){if(/^\s*[eBGDAEb]\|[-\dhpbrx\/\\~()|\s]+$/.test(t))return `<div class="ln tabl">${esc(t)}</div>`;
  const segs=[];
  t.split(/(\[[^\]]+\])/).forEach(p=>{
   const m=p.match(/^\[([^\]]+)\]$/);
@@ -657,7 +665,7 @@ $("up").onclick=()=>{S.shift=((S.shift||0)+13)%12;save();preview()};
 $("dn").onclick=()=>{S.shift=((S.shift||0)+11)%12;save();preview()};
 $("rs").onclick=()=>{S.shift=0;save();preview()};
 $("ksel").onchange=()=>{S.shift=((+$("ksel").value)-origIdx(S)+12)%12;save();preview()};
-const CH=/^[A-G][#b]?(m|maj|min|dim|aug|sus|add|M)?[0-9]*([#b+°º-]?[0-9]*)*(\([^)]*\))?(\/[A-G][#b]?)?$/;
+const CH=/^[A-G][#b]?(?:maj|min|dim|aug|m|M|°|º|\+|-)?(?:[0-9]{1,2}|[#b+-][0-9]{1,2}|maj|M|sus[24]?|add[0-9]{1,2}|dim|aug|\([^)]*\))*(?:\/[A-G][#b]?)?$/;
 const SKIP=/^(\||\|\||:\|\||\|\|:|:|-|–|x\d+|\d+x|\(?\d+x\)?)$/i;
 const nb=x=>x.replace(/\{[^}]*\}$/,"");
 const nt=x=>{const m=x.match(/\{([^}]*)\}$/);return m?m[1].replace(/_/g," "):""};
@@ -665,6 +673,7 @@ const isChordLine=l=>{const t=l.trim().split(/\s+/).filter(Boolean);return t.len
 const HEAD=/^\[?\s*(intro(dução|ducao)?|estrofe|verso|refr[aã]o|coro|ponte|pr[eé][- ]?refr[aã]o|final|solo|interl[uú]dio|outro|tag)\b[^\n]{0,20}?\]?\s*:?\s*$/i;
 const BH=/^\[([^\]]+)\]\s*((?:\d+\s*x|x\s*\d+))?\s*$/i;
 const isHdr=l=>{const t=l.trim(),m=t.match(BH);return(!!m&&!CH.test(m[1].trim()))||(!isChordLine(t)&&HEAD.test(t))};
+const IH=/^\s*\[?\s*(intro(?:dução|ducao)?|solo|interl[uú]dio|final|ponte|refr[aã]o|estrofe|coro|outro)\s*(\(?\s*(?:\d+\s*x|x\s*\d+)\s*\)?)?\s*\]?\s*[:\-]\s*(\S.*)$/i;
 function conv(chordL,lyric){
  let res=lyric.replace(/\t/g,"    ");
  const pos=[];chordL.replace(/\t/g,"    ").replace(/\S+/g,(m,i)=>{if(CH.test(nb(m)))pos.push([i,m])});
@@ -681,11 +690,13 @@ function parse(txt){
  for(let i=0;i<L.length;i++){
   const l=L[i];
   if(!l.trim()){flush();continue}
+  const ih=l.match(IH);
+  if(ih&&isChordLine(ih[3])){flush();cur={name:ih[1][0].toUpperCase()+ih[1].slice(1).toLowerCase(),rep:(ih[2]||"").replace(/[\s()]/g,""),lines:[chordOnly(ih[3])],note:""};continue}
   if(isHdr(l)){
    flush();const t=l.trim(),m=t.match(BH);let name,rep="";
    if(m&&!CH.test(m[1].trim())){name=m[1].trim();rep=(m[2]||"").replace(/\s/g,"")}
    else name=t.replace(/[\[\]:]/g,"").trim();
-   name=name[0].toUpperCase()+name.slice(1);cur={name,rep,lines:[],note:""};continue}
+   const r2=name.match(/\(?\s*(\d+\s*x|x\s*\d+)\s*\)?\s*$/i);if(r2){rep=r2[1].replace(/\s/g,"");name=name.replace(r2[0],"").trim()||name}name=name[0].toUpperCase()+name.slice(1);cur={name,rep,lines:[],note:""};continue}
   if(!cur)cur={name:null,rep:"",lines:[],note:""};
   if(/^>\s?/.test(l)){cur.note=(cur.note?cur.note+" ":"")+l.replace(/^>\s?/,"").trim();continue}
   if(isChordLine(l)){
@@ -812,6 +823,10 @@ $("sview").onclick=()=>{if(!curSet()){msg("Crie um repertório e adicione músic
 $("back").onclick=()=>{VIEW="song";preview()};
 /* ---- modo palco ---- */
 let SI=[],SX=0,SS=0,FS=18,PLAY=false,ACC=0;
+let WL=null,WANT=false;
+async function wl(on){WANT=on;try{if(on&&navigator.wakeLock&&!WL){WL=await navigator.wakeLock.request("screen");WL.addEventListener("release",()=>{WL=null})}else if(!on&&WL){await WL.release();WL=null}}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&WANT&&!WL)wl(true)});
+document.addEventListener("keydown",e=>{if($("stage").hidden||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName||""))return;if(e.key===" "){e.preventDefault();$("play").click()}else if(e.key==="ArrowRight")$("sn").click();else if(e.key==="ArrowLeft")$("sp").click()});
 function stageRender(){
  const it=SI[SX];$("stg").innerHTML=sheetHTML(it.sg,it.x+SS);$("stg").style.setProperty("--fs",FS);
  $("tv").textContent=(SS>0?"+":"")+SS;$("sti").textContent=SI.length>1?(SX+1)+"/"+SI.length:"";$("stage").scrollTop=0;
@@ -821,9 +836,9 @@ function tick(){if(!PLAY)return;ACC+=$("spd").value*0.25;const n=Math.floor(ACC)
 $("stg0").onclick=()=>{
  const cs=curSet();
  SI=VIEW==="set"&&cs&&cs.items.length?cs.items.map(i=>({sg:songBy(i.songId),x:i.shift||0})).filter(i=>i.sg):[{sg:S,x:0}];
- SX=0;SS=0;$("stage").hidden=false;document.body.style.overflow="hidden";stageRender();
+ wl(true);SX=0;SS=0;$("stage").hidden=false;document.body.style.overflow="hidden";stageRender();
 };
-const closeStage=()=>{play(false);$("stage").hidden=true;document.body.style.overflow="";$("tip").style.display="none"};
+const closeStage=()=>{wl(false);play(false);$("stage").hidden=true;document.body.style.overflow="";$("tip").style.display="none"};
 $("sx").onclick=closeStage;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("stage").hidden)closeStage()});
 $("sp").onclick=()=>{if(SX>0){SX--;SS=0;stageRender()}};
@@ -837,7 +852,7 @@ $("ex").onclick=()=>{S=clone(EX);S.id=uid();LIB.songs.push(S);LIB.cur=S.id;field
 $("q").oninput=lib;
 $("new").onclick=()=>{S={id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",shift:0,sections:[{name:"Estrofe",text:""}]};LIB.songs.push(S);LIB.cur=S.id;VIEW="song";fields();all();tab("edit");$("title").select()};
 $("dup").onclick=()=>{S={...clone(S),id:uid(),title:(S.title||"")+" (cópia)"};LIB.songs.push(S);LIB.cur=S.id;fields();all()};
-$("del").onclick=()=>{if(!armed($("del")))return;$("pop").hidden=true;LIB.sets.forEach(x=>{const n=x.items.length;x.items=x.items.filter(i=>i.songId!==S.id);if(x.items.length!==n)x.updated=Date.now()});tomb("song",S.id);LIB.songs=LIB.songs.filter(s=>s!==S);if(!LIB.songs.length)LIB.songs.push({id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",shift:0,sections:[{name:"Estrofe",text:""}]});S=LIB.songs[0];LIB.cur=S.id;fields();all()};
+$("del").onclick=()=>{if(!armed($("del")))return;$("pop").hidden=true;LIB.sets.forEach(x=>{const n=x.items.length;x.items=x.items.filter(i=>i.songId!==S.id);if(x.items.length!==n)x.updated=Date.now()});(LIB.trash=LIB.trash||[]).push({song:clone(S),t:Date.now()});tomb("song",S.id);LIB.songs=LIB.songs.filter(s=>s!==S);if(!LIB.songs.length)LIB.songs.push({id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",shift:0,sections:[{name:"Estrofe",text:""}]});S=LIB.songs[0];LIB.cur=S.id;fields();all()};
 $("expAll").onclick=()=>out("minhas-cifras.json",{app:"cifras",version:2,songs:LIB.songs,sets:LIB.sets});
 $("expOne").onclick=()=>out(fname(S.title)+".json",{app:"cifras",version:1,songs:[S]});
 $("imp").onclick=()=>$("file").click();
@@ -975,9 +990,10 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")mToggle(false)});
 $("tags").oninput=()=>{S.tags=$("tags").value.split(",").map(x=>x.trim()).filter(Boolean);save()};
 $("fav").onchange=()=>{S.fav=$("fav").checked;save()};
 all();setM("edit");
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 /* ===== LOGIN OBRIGATÓRIO + SINCRONIZAÇÃO (Supabase) ===== */
 const CONFIGURED=/^https:\/\/[a-z0-9-]+\.supabase\.(co|in)/i.test(SUPABASE_URL)&&SUPABASE_KEY.length>40;
-let AMODE="in",BOOT=false,RECOV=false,PT=null,PUSHING=false,AGAIN=false,BUSY=false,SYNCERR=null;
+let CONF=0,AMODE="in",BOOT=false,RECOV=false,PT=null,PUSHING=false,AGAIN=false,BUSY=false,SYNCERR=null;
 const aerr=m=>{const e=$("amsg");e.textContent=m||"";e.hidden=!m};
 const ERRS={"Invalid login credentials":"E-mail ou senha incorretos.","User already registered":"Este e-mail já tem conta. Use a aba Entrar.","Email not confirmed":"Confirme seu e-mail antes de entrar (veja a caixa de entrada e o spam).","New password should be different from the old password.":"A nova senha precisa ser diferente da anterior."};
 const trErr=m=>ERRS[m]||(/rate limit|too many/i.test(m||"")?"Muitas tentativas. Aguarde alguns minutos e tente de novo.":(m||"Algo deu errado. Tente de novo."));
@@ -1058,7 +1074,7 @@ async function pull(){
   if(t){if(!r.deleted&&r.updated>t.t)tb.delete(r.id);else return}
   const list=r.kind==="set"?LIB.sets:LIB.songs,i=list.findIndex(x=>x.id===r.id),lu=i>=0?(list[i].updated||0):-1;
   if(r.deleted){if(i>=0&&lu<=r.updated){list.splice(i,1);changed=true}LIB.synced[r.id]=r.updated;return}
-  if(i<0||lu<r.updated){const o=r.data||{};o.id=r.id;o.updated=r.updated;if(i>=0)list[i]=o;else list.push(o);LIB.synced[r.id]=r.updated;changed=true}
+  if(i<0||lu<r.updated){if(i>=0&&r.kind!=="set"&&lu>(LIB.synced[r.id]||0)){const c=clone(list[i]);c.id=uid();c.title=(c.title||"")+" (versão local – conflito)";c.updated=Date.now();list.push(c);CONF++}const o=r.data||{};o.id=r.id;o.updated=r.updated;if(i>=0)list[i]=o;else list.push(o);LIB.synced[r.id]=r.updated;changed=true}
   else if(lu===r.updated)LIB.synced[r.id]=r.updated;
  });
  LIB.dels=[...tb.values()];SYNCERR=null;
@@ -1068,7 +1084,7 @@ const blankSong=()=>({id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",
 async function syncNow(manual){
  if(!USER||BUSY)return;BUSY=true;
  try{
-  await push();const changed=await pull();
+  const changed=await pull();await push();
   if(changed){
    if(!LIB.songs.length)LIB.songs.push(blankSong());
    S=LIB.songs.find(x=>x.id===S.id)||LIB.songs[0];LIB.cur=S.id;
@@ -1076,7 +1092,7 @@ async function syncNow(manual){
    fields();editor();preview();lib();if(MODE==="text")$("ttxt").value=ser(S.sections);
   }
   setSync(SYNCERR?"err":"ok");
-  if(manual)msg(SYNCERR?"Não foi possível sincronizar agora.":"Tudo sincronizado.");
+  if(CONF){msg("Atenção: "+CONF+" música(s) foi(ram) editada(s) em outro aparelho ao mesmo tempo. Sua versão local foi salva como cópia “conflito”.");CONF=0}else if(manual)msg(SYNCERR?"Não foi possível sincronizar agora.":"Tudo sincronizado.");
  }finally{BUSY=false}
 }
 function setAcct(u){
@@ -1102,8 +1118,46 @@ async function bootUser(user){
  setAcct(user);
  document.documentElement.classList.remove("locked");
  setSync(SYNCERR?"err":"ok");schedPush();
+ try{const p=sessionStorage.getItem("cifras_pending");if(p){sessionStorage.removeItem("cifras_pending");importShare(JSON.parse(p))}}catch(e){}
 }
 async function startSession(user){if(BOOT||USER)return;BOOT=true;try{await bootUser(user)}catch(e){console.error(e);showForm();aerr("Erro ao carregar suas cifras: "+(e.message||e))}BOOT=false}
+async function mkShare(kind,data){
+ if(!USER){msg("Entre na conta para compartilhar.");return}
+ const{data:r,error}=await sb.from("cifras_shares").insert({owner:USER.id,kind,data}).select("id").single();
+ if(error){msg("Não foi possível criar o link: "+error.message);return}
+ const url=location.origin+location.pathname+"?share="+r.id;
+ try{if(navigator.share){await navigator.share({title:"Cifra",url});return}}catch(e){if(e&&e.name==="AbortError")return}
+ try{await navigator.clipboard.writeText(url);msg("Link copiado: "+url)}catch(e){prompt("Copie o link:",url)}
+}
+$("shOne").onclick=()=>mkShare("song",{songs:[clone(S)]});
+$("sshare").onclick=()=>{const c=curSet();if(!c){msg("Crie um repertório primeiro.");return}const ids=[...new Set(c.items.map(i=>i.songId))];mkShare("set",{songs:ids.map(songBy).filter(Boolean).map(clone),set:clone(c)})};
+let SHD=null;
+const shClose=()=>{$("shv").hidden=true;try{history.replaceState(null,"",location.pathname)}catch(e){}};
+function showShare(d){
+ SHD=d;const set=d.set,its=set?set.items:d.songs.map(x=>({songId:x.id,shift:0})),sh=$("shsheet");
+ sh.innerHTML=its.map(it=>{const sg=d.songs.find(x=>x.id===it.songId);return sg?`<div class="pg">${sheetHTML(sg,it.shift||0)}</div>`:""}).join("");
+ sh.style.setProperty("--z",Math.min(1,(innerWidth-24)/794));
+ $("shttl").textContent=set?"Repertório: "+set.name:(d.songs[0]&&d.songs[0].title)||"Cifra";$("shv").hidden=false;
+}
+function importShare(d){
+ const idm={};d.songs.forEach(x=>{const id=uid();idm[x.id]=id;LIB.songs.push({...x,id,updated:Date.now()})});
+ if(d.set)LIB.sets.push({id:uid(),name:d.set.name,updated:Date.now(),items:d.set.items.filter(i=>idm[i.songId]).map(i=>({songId:idm[i.songId],shift:i.shift||0}))});
+ S=songBy(idm[d.songs[0].id])||S;LIB.cur=S.id;VIEW="song";fields();all();lib();shClose();toast("Salvo na sua biblioteca.");
+}
+$("shx").onclick=shClose;
+$("shimp").onclick=()=>{if(!USER){try{sessionStorage.setItem("cifras_pending",JSON.stringify(SHD))}catch(e){}shClose();toast("Entre ou crie sua conta: a cifra será salva ao entrar.");return}importShare(SHD)};
+/* ---- lixeira ---- */
+function trashList(){
+ LIB.trash=(LIB.trash||[]).filter(x=>x.t>Date.now()-30*864e5);const b=$("trashl");b.innerHTML="";
+ LIB.trash.slice().reverse().forEach(x=>{const d=document.createElement("div");d.className="sit";
+  d.innerHTML=`<span class="n">${esc(x.song.title||"(sem título)")}</span><small>${new Date(x.t).toLocaleDateString("pt-BR")}</small><button>Restaurar</button>`;
+  d.querySelector("button").onclick=()=>{const g=x.song;g.updated=Date.now();LIB.dels=(LIB.dels||[]).filter(t=>t.id!==g.id);LIB.songs.push(g);LIB.trash=LIB.trash.filter(y=>y!==x);S=g;LIB.cur=g.id;fields();all();trashList();toast("Música restaurada.")};
+  b.appendChild(d)});
+ if(!LIB.trash.length)b.innerHTML='<div class="help">Lixeira vazia. Músicas excluídas ficam aqui por 30 dias, neste aparelho.</div>';
+}
+$("trashb").onclick=()=>{trashList();$("trashbox").hidden=false};
+$("tclose").onclick=()=>{$("trashbox").hidden=true};
+$("trashbox").onclick=e=>{if(e.target===$("trashbox"))$("trashbox").hidden=true};
 $("m-sync").onclick=()=>syncNow(true);
 $("m-out").onclick=async()=>{
  await push();
@@ -1125,6 +1179,8 @@ setInterval(()=>{if(USER&&!document.hidden)syncNow()},60000);
  if(!window.supabase){$("aload").textContent="Não foi possível carregar o serviço de login. Verifique sua conexão e recarregue a página.";return}
  if(!CONFIGURED){$("aload").innerHTML="⚙️ Falta configurar o Supabase. Abra o <b>index.html</b> e preencha <b>SUPABASE_URL</b> e <b>SUPABASE_KEY</b> no início do script (veja o README).";return}
  sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ const sid=new URLSearchParams(location.search).get("share");
+ if(sid){const{data:d}=await sb.rpc("get_share",{p_id:sid});if(d&&d.songs)showShare(d);else toast("Link inválido ou removido.")}
  sb.auth.onAuthStateChange((ev,session)=>{
   if(ev==="PASSWORD_RECOVERY"){RECOV=true;document.documentElement.classList.add("locked");showForm();setA("rec");return}
   if(session&&!RECOV)startSession(session.user);
