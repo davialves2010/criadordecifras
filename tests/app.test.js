@@ -53,3 +53,12 @@ test("ChordPro sem seções vira Estrofe",()=>{
  const r=app.json('fromCho("{title: X}\\n[C]Oi\\n[G]Tchau\\n\\n[Am]Outra")');
  assert.equal(r.secs.length,2);assert.equal(r.secs[0].text,"[C]Oi\n[G]Tchau");
 });
+
+test("ordenação da biblioteca",()=>{
+ const ord=(m,l)=>app.run('FILT.sort="'+m+'";'+l+'.sort(cmpSong).map(s=>s.title).join("")');
+ assert.equal(ord("title",'[{title:"b"},{title:"a"}]'),"ab");
+ assert.equal(ord("recent",'[{title:"x",updated:1},{title:"y",updated:5}]'),"yx");
+ assert.equal(ord("artist",'[{title:"1",artist:"Z"},{title:"2",artist:"A"},{title:"3"}]'),"213");
+ assert.equal(ord("key",'[{title:"b",key:"G"},{title:"c"},{title:"a",key:"C"}]'),"abc");
+ app.run('FILT.sort="title"');
+});

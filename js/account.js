@@ -21,7 +21,7 @@ setInterval(()=>{if(USER&&!document.hidden)syncNow()},60000);
  if(!CONFIGURED){$("aload").innerHTML="⚙️ Falta configurar o Supabase. Abra o <b>index.html</b> e preencha <b>SUPABASE_URL</b> e <b>SUPABASE_KEY</b> no início do script (veja o README).";return}
  sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
  const sid=new URLSearchParams(location.search).get("share");
- if(sid){const{data:d}=await sb.rpc("get_share",{p_id:sid});if(d&&d.songs)showShare(d);else toast("Link inválido ou removido.")}
+ if(sid){const{data:d}=await sb.rpc("get_share",{p_id:sid});if(d&&d.songs)showShare(d,sid);else toast("Link inválido ou removido.")}
  sb.auth.onAuthStateChange((ev,session)=>{
   if(ev==="PASSWORD_RECOVERY"){RECOV=true;document.documentElement.classList.add("locked");showForm();setA("rec");return}
   if(session&&!RECOV)startSession(session.user);

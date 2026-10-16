@@ -19,7 +19,7 @@ try{if(window.claude)claude.use("downloads").then(d=>DL=d).catch(()=>{})}catch(e
 let LKEY="cifras_lib_anon",USER=null,sb=null;
 const persist=()=>{let ok=true;try{localStorage.setItem(LKEY,JSON.stringify(LIB))}catch(e){ok=false}if(typeof schedPush==="function")schedPush();return ok};
 let HID=null,HT=null,MODE="cards";const HIST={};
-const save=()=>{S.updated=Date.now();const ok=persist();lib();HID=S.id;clearTimeout(HT);HT=setTimeout(snap,500);updUndo();const sv=$("sv");sv.textContent=ok?(USER?"☁ Salvando…":"✓ Salvo neste navegador"):"⚠ Não foi possível salvar";sv.className="sv"+(ok?"":" bad");$("dot").className="dot"+(ok?"":" bad")};
+const save=()=>{S.updated=Date.now();const ok=persist();lib();HID=S.id;clearTimeout(HT);HT=setTimeout(snap,500);updUndo();const sv=$("sv");sv.textContent=ok?(USER?"☁ Salvando…":"✓ Salvo neste navegador"):"⚠ Não foi possível salvar";sv.className="sv"+(ok?"":" bad");if(!ok&&!window.__sw){window.__sw=1;toast("⚠ O navegador não deixou salvar neste aparelho (armazenamento cheio, bloqueado ou aba privada). Exporte um backup e libere espaço.")}$("dot").className="dot"+(ok?"":" bad")};
 let VIEW="song";
 const curSet=()=>LIB.sets.find(x=>x.id===LIB.curSet);
 const songBy=id=>LIB.songs.find(s=>s.id===id);
@@ -30,7 +30,15 @@ const msg=t=>{const m=$("msg");m.textContent=t;m.style.display=t?"block":"none";
 const nz=x=>(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const lyr=s=>(s.sections||[]).map(x=>(x.text||"").replace(/\[[^\]]+\]|\{[^}]*\}/g," ").replace(/\s+/g," ")).join(" / ");
 function matchSong(s,q){q=nz(q).trim();if(!q)return true;return nz([s.title,s.artist,(s.tags||[]).join(" "),lyr(s)].join(" ")).includes(q)}
-let FILT={fav:false,tag:""};
+let FILT={fav:false,tag:"",sort:"title"};
+const keyRoot=s=>{const m=(s.key||"").match(/^\s*([A-G][#b]?)/);return m?IDX[m[1]]:99};
+const cmpSong=(a,b)=>{
+ const t=(a.title||"").localeCompare(b.title||"","pt"),m=FILT.sort;
+ if(m==="recent")return (b.updated||0)-(a.updated||0)||t;
+ if(m==="artist")return (a.artist||"\uffff").localeCompare(b.artist||"\uffff","pt")||t;
+ if(m==="key")return keyRoot(a)-keyRoot(b)||t;
+ return t;
+};
 function lib(){
  const q=$("q").value,qn=nz(q).trim();
  $("cnt").textContent=LIB.songs.length;
@@ -43,7 +51,7 @@ function lib(){
   tags.forEach(t=>mk("#"+t,FILT.tag===t,()=>{FILT.tag=FILT.tag===t?"":t;lib()}));
  }
  const l=$("list");l.innerHTML="";
- LIB.songs.filter(s=>(!FILT.fav||s.fav)&&(!FILT.tag||(s.tags||[]).includes(FILT.tag))&&matchSong(s,q)).sort((a,b)=>(a.title||"").localeCompare(b.title||"","pt")).forEach(s=>{
+ LIB.songs.filter(s=>(!FILT.fav||s.fav)&&(!FILT.tag||(s.tags||[]).includes(FILT.tag))&&matchSong(s,q)).sort(cmpSong).forEach(s=>{
   const d=document.createElement("div");d.className="it"+(s===S?" on":"");
   let snip="";
   if(qn&&!nz((s.title||"")+" "+(s.artist||"")+" "+(s.tags||[]).join(" ")).includes(qn)){const ly=lyr(s),i=nz(ly).indexOf(qn);if(i>=0)snip="…"+ly.slice(Math.max(0,i-18),i+qn.length+28).trim()+"…"}

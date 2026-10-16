@@ -5,7 +5,7 @@ function setSync(s,d){
  $("sv").textContent=T[s]||"";$("sv").title=d||"";$("sv").className="sv"+(bad?" bad":"");$("dot").className="dot"+(bad?" bad":"");
 }
 function tomb(kind,id,data){LIB.dels=(LIB.dels||[]).filter(t=>t.id!==id);LIB.dels.push({id,kind,t:Date.now(),data})}
-function schedPush(){if(!USER)return;clearTimeout(PT);PT=setTimeout(push,1500)}
+function schedPush(){if(!USER)return;clearTimeout(PT);PT=setTimeout(push,1500);if(typeof schedLive==="function")schedLive()}
 async function push(){
  if(!USER||!sb)return;if(PUSHING){AGAIN=true;return}
  PUSHING=true;
@@ -81,5 +81,6 @@ async function bootUser(user){
  document.documentElement.classList.remove("locked");
  setSync(SYNCERR?"err":"ok");schedPush();
  try{const p=sessionStorage.getItem("cifras_pending");if(p){sessionStorage.removeItem("cifras_pending");importShare(JSON.parse(p))}}catch(e){}
+ try{backupCheck()}catch(e){}
 }
 async function startSession(user){if(BOOT||USER)return;BOOT=true;try{await bootUser(user)}catch(e){console.error(e);showForm();aerr("Erro ao carregar suas cifras: "+(e.message||e))}BOOT=false}

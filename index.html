@@ -81,7 +81,7 @@
 
   <section id="t-songs" class="tab lib" hidden>
    <label style="margin-top:0">Minhas músicas (<span id="cnt">0</span>)</label>
-   <input id="q" placeholder="Buscar por título, artista ou letra…"><div class="chips" id="tagbar"></div>
+   <input id="q" placeholder="Buscar por título, artista ou letra…"><select id="sortsel" aria-label="Ordenar músicas" style="margin-top:6px"><option value="title">Ordem: A–Z</option><option value="recent">Ordem: mais recentes</option><option value="artist">Ordem: artista</option><option value="key">Ordem: tom</option></select><div class="chips" id="tagbar"></div>
    <div id="list"></div>
    <div class="bar"><button class="p" id="new">+ Nova</button><span class="menuwrap"><button id="more">⋯ Mais</button><div class="pop" id="pop" hidden><button id="dup">Duplicar esta</button><button id="del">Excluir esta</button><hr><button id="shOne">🔗 Compartilhar esta</button><button id="trashb">🗑 Lixeira</button><button id="expOne">⬇ Exportar esta</button><button id="expCho">⬇ Exportar ChordPro</button><button id="expAll">⬇ Exportar tudo</button><button id="imp">⬆ Importar</button><button id="ex">Carregar exemplo</button></div></span><input type="file" id="file" accept=".json,application/json,.cho,.crd,.chordpro,.pro" hidden></div>
    <div class="help">Suas músicas ficam na sua conta (nuvem) e neste aparelho. Use 🔗 Compartilhar para enviar por link ou Exportar para backup.</div>
@@ -93,8 +93,8 @@
    <input id="sname" placeholder="Nome do repertório" style="margin-top:6px">
    <div class="bar"><button id="snew">+ Novo</button><button id="sdel">Excluir</button></div>
    <div id="sitems"></div>
-   <div class="row" style="margin-top:6px"><select id="sadd"></select><button style="flex:0 0 auto" id="saddb">+ Adicionar</button></div>
-   <div class="bar"><button class="p" id="sview">👁 Ver / imprimir repertório</button><button id="sshare">🔗 Link</button><button id="back" style="display:none">← Voltar à música</button></div>
+   <input id="saq" placeholder="Buscar música para adicionar…" style="margin-top:6px"><div class="row" style="margin-top:6px"><select id="sadd"></select><button style="flex:0 0 auto" id="saddb">+ Adicionar</button></div>
+   <div class="bar"><button class="p" id="sview">👁 Ver / imprimir repertório</button><button id="sshare">🔗 Link</button><button id="slive" title="Link que se atualiza sozinho quando você muda o repertório">🔴 Link ao vivo</button><button id="back" style="display:none">← Voltar à música</button></div>
   </section>
  </div>
  <div class="wrap">
@@ -136,6 +136,7 @@
   <section class="ccard">
    <div class="crow"><div><b>Resumo</b><span class="muted" id="cfg-stats"></span></div></div>
    <div class="crow"><div><b>Backup completo</b><span class="muted">Baixa todas as músicas e repertórios em um arquivo.</span></div><button id="m-exp">⬇ Exportar tudo</button></div>
+   <div class="crow"><div><b>Backup ao sair</b><span class="muted" id="bk-last"></span><span class="muted">Baixa um arquivo de backup toda vez que você sair da conta. Também avisamos se passar 30 dias sem backup.</span></div><input type="checkbox" id="pf-bk" style="width:auto" aria-label="Baixar backup ao sair"></div>
    <div class="crow"><div><b>Música aberta</b><span class="muted">Baixa só a música que você está editando.</span></div><button id="m-expo">⬇ Exportar esta</button></div>
    <div class="crow"><div><b>Exportar em ChordPro</b><span class="muted">Baixa a música aberta em .cho, para usar em outros apps.</span></div><button id="m-cho">⬇ ChordPro</button></div>
    <div class="crow"><div><b>Importar arquivo</b><span class="muted">Acrescenta as músicas do arquivo (.json ou ChordPro) à sua biblioteca.</span></div><button id="m-imp">⬆ Importar</button></div>
@@ -197,6 +198,7 @@
 <script src="js/history.js"></script>
 <script src="js/modes.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/organize.js"></script>
 <script src="js/metronome.js"></script>
 <script src="js/init.js"></script>
 <script src="js/pwa.js"></script>
@@ -205,6 +207,7 @@
 <script src="js/share.js"></script>
 <script src="js/trash.js"></script>
 <script src="js/account.js"></script>
+<script src="js/backup.js"></script>
 <script src="js/a11y.js"></script>
 </body>
 </html>
