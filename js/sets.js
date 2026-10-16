@@ -29,7 +29,7 @@ function sets(){
 $("setsel").onchange=e=>{LIB.curSet=e.target.value;touchSets()};
 $("snew").onclick=()=>{const x={id:uid(),name:"Novo repertório",items:[]};LIB.sets.push(x);LIB.curSet=x.id;touchSets();$("sname").focus();$("sname").select()};
 $("sname").oninput=e=>{const c=curSet();if(c){c.name=e.target.value;c.updated=Date.now();persist();const o=$("setsel").selectedOptions[0];if(o)o.textContent=c.name||"(sem nome)"}};
-$("sdel").onclick=()=>{const c=curSet();if(!c||!armed($("sdel")))return;tomb("set",c.id);LIB.sets=LIB.sets.filter(x=>x!==c);LIB.curSet=null;touchSets()};
+$("sdel").onclick=()=>{const c=curSet();if(!c||!armed($("sdel")))return;const g=clone(c);(LIB.trash=LIB.trash||[]).push({kind:"set",item:g,t:Date.now()});tomb("set",c.id,g);LIB.sets=LIB.sets.filter(x=>x!==c);LIB.curSet=null;touchSets()};
 $("saddb").onclick=()=>{
  if(!LIB.songs.length)return;
  let c=curSet();if(!c){c={id:uid(),name:"Repertório 1",items:[]};LIB.sets.push(c);LIB.curSet=c.id}

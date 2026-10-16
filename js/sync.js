@@ -4,7 +4,7 @@ function setSync(s,d){
  const T={ok:"☁ Sincronizado",sync:"☁ Sincronizando…",err:"⚠ Erro ao sincronizar"},bad=s==="err";
  $("sv").textContent=T[s]||"";$("sv").title=d||"";$("sv").className="sv"+(bad?" bad":"");$("dot").className="dot"+(bad?" bad":"");
 }
-function tomb(kind,id){LIB.dels=(LIB.dels||[]).filter(t=>t.id!==id);LIB.dels.push({id,kind,t:Date.now()})}
+function tomb(kind,id,data){LIB.dels=(LIB.dels||[]).filter(t=>t.id!==id);LIB.dels.push({id,kind,t:Date.now(),data})}
 function schedPush(){if(!USER)return;clearTimeout(PT);PT=setTimeout(push,1500)}
 async function push(){
  if(!USER||!sb)return;if(PUSHING){AGAIN=true;return}
@@ -13,7 +13,7 @@ async function push(){
   LIB.synced=LIB.synced||{};LIB.dels=LIB.dels||[];
   const rows=[],add=(kind,o)=>{const u=o.updated||0;if(!(o.id in LIB.synced)||u>LIB.synced[o.id])rows.push({user_id:USER.id,id:o.id,kind,data:o,updated:u||Date.now(),deleted:false})};
   LIB.songs.forEach(s=>add("song",s));LIB.sets.forEach(s=>add("set",s));
-  LIB.dels.forEach(t=>rows.push({user_id:USER.id,id:t.id,kind:t.kind,data:{},updated:t.t,deleted:true}));
+  LIB.dels.forEach(t=>rows.push({user_id:USER.id,id:t.id,kind:t.kind,data:t.data||{},updated:t.t,deleted:true}));
   if(rows.length){
    setSync("sync");
    const{error}=await sb.from("cifras_items").upsert(rows,{onConflict:"user_id,id"});
@@ -35,8 +35,8 @@ async function pull(){
   const t=tb.get(r.id);
   if(t){if(!r.deleted&&r.updated>t.t)tb.delete(r.id);else return}
   const list=r.kind==="set"?LIB.sets:LIB.songs,i=list.findIndex(x=>x.id===r.id),lu=i>=0?(list[i].updated||0):-1;
-  if(r.deleted){if(i>=0&&lu<=r.updated){list.splice(i,1);changed=true}LIB.synced[r.id]=r.updated;return}
-  if(i<0||lu<r.updated){if(i>=0&&r.kind!=="set"&&lu>(LIB.synced[r.id]||0)){const c=clone(list[i]);c.id=uid();c.title=(c.title||"")+" (versão local – conflito)";c.updated=Date.now();list.push(c);CONF++}const o=r.data||{};o.id=r.id;o.updated=r.updated;if(i>=0)list[i]=o;else list.push(o);LIB.synced[r.id]=r.updated;changed=true}
+  if(r.deleted){const gone=i<0||lu<=r.updated;if(i>=0&&gone){list.splice(i,1);changed=true}if(gone){const o=r.data;LIB.trash=LIB.trash||[];if(o&&o.id&&!LIB.trash.some(x=>x.item&&x.item.id===o.id)){LIB.trash.push({kind:r.kind==="set"?"set":"song",item:o,t:r.updated});changed=true}}LIB.synced[r.id]=r.updated;return}
+  if(i<0||lu<r.updated){if(i>=0&&r.kind!=="set"&&lu>(LIB.synced[r.id]||0)){const c=clone(list[i]);c.id=uid();c.title=(c.title||"")+" (versão local – conflito)";c.updated=Date.now();list.push(c);CONF++}const o=r.data||{};o.id=r.id;o.updated=r.updated;if(i>=0)list[i]=o;else list.push(o);LIB.trash=(LIB.trash||[]).filter(x=>!x.item||x.item.id!==r.id);LIB.synced[r.id]=r.updated;changed=true}
   else if(lu===r.updated)LIB.synced[r.id]=r.updated;
  });
  LIB.dels=[...tb.values()];SYNCERR=null;

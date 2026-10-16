@@ -1,8 +1,7 @@
 /* css/style.css — estilos do app (layout, folha, modo palco, login, configurações).
    As seções "v5…v9" no fim sobrescrevem as anteriores, por isso a ordem importa. */
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f1f2f4;--panel:#fff;--tx:#1d2026;--mut:#6b7280;--bd:#d6d9de;--ac:#c0112b}
-:root:not([data-theme="light"]){}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171b;--panel:#1f2227;--tx:#e8eaed;--mut:#9aa1ab;--bd:#353a42}}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f1f2f4;--panel:#fff;--tx:#1d2026;--mut:#6b7280;--bd:#d6d9de;--ac:#c8102e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111317;--panel:#1b1e23;--tx:#e8eaed;--mut:#9aa1ab;--bd:#2d3239}}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
@@ -34,7 +33,7 @@ button.p{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
 .ln{white-space:pre-wrap;margin-bottom:2px;min-height:14px}
 .s{display:inline-flex;flex-direction:column;vertical-align:bottom}
 .c{color:#c0112b;font-weight:800;font-size:12px;min-height:16px;padding-right:6px;white-space:pre}
-.l{font-size:11px;color:#777;white-space:pre;min-height:14px}
+.l{font-size:11px;white-space:pre;min-height:14px}
 .ch .l{color:#c0112b;font-weight:800;font-size:12px}
 .ch .s{flex-direction:row;align-items:baseline}.ch .c{min-height:0;padding-right:0}.ch .l{min-height:0}.ch .nt{margin-right:4px}
 .l{color:#555}
@@ -89,8 +88,6 @@ details{border:1px solid var(--bd);border-radius:10px;padding:8px 10px;margin-to
 @media print{.top{display:none!important}}
 
 /* ---- polimento visual ---- */
-:root{--ac:#c8102e}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111317;--panel:#1b1e23;--bd:#2d3239}}
 body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .editor{border:0;box-shadow:0 1px 4px rgba(0,0,0,.1);padding:12px}
 label{font-weight:600;letter-spacing:.01em}
@@ -231,3 +228,7 @@ html:not(.locked) #auth{display:none}
 /* ---- v10: palco (seções) ---- */
 .stage .box{scroll-margin-top:70px}
 #sbar select{padding:4px 6px;font-size:13px;background:#2a2e35;color:#eee;border-color:#444}
+
+/* ---- v11: acessibilidade e links ---- */
+button:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.apriv a,.cfgfoot a{color:var(--ac)}

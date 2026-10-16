@@ -3,7 +3,7 @@ $("ex").onclick=()=>{S=clone(EX);S.id=uid();LIB.songs.push(S);LIB.cur=S.id;field
 $("q").oninput=lib;
 $("new").onclick=()=>{S={id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",shift:0,sections:[{name:"Estrofe",text:""}]};LIB.songs.push(S);LIB.cur=S.id;VIEW="song";fields();all();tab("edit");$("title").select()};
 $("dup").onclick=()=>{S={...clone(S),id:uid(),title:(S.title||"")+" (cópia)"};LIB.songs.push(S);LIB.cur=S.id;fields();all()};
-$("del").onclick=()=>{if(!armed($("del")))return;$("pop").hidden=true;LIB.sets.forEach(x=>{const n=x.items.length;x.items=x.items.filter(i=>i.songId!==S.id);if(x.items.length!==n)x.updated=Date.now()});(LIB.trash=LIB.trash||[]).push({song:clone(S),t:Date.now()});tomb("song",S.id);LIB.songs=LIB.songs.filter(s=>s!==S);if(!LIB.songs.length)LIB.songs.push({id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",shift:0,sections:[{name:"Estrofe",text:""}]});S=LIB.songs[0];LIB.cur=S.id;fields();all()};
+$("del").onclick=()=>{if(!armed($("del")))return;$("pop").hidden=true;LIB.sets.forEach(x=>{const n=x.items.length;x.items=x.items.filter(i=>i.songId!==S.id);if(x.items.length!==n)x.updated=Date.now()});const gone=clone(S);(LIB.trash=LIB.trash||[]).push({kind:"song",item:gone,t:Date.now()});tomb("song",S.id,gone);LIB.songs=LIB.songs.filter(s=>s!==S);if(!LIB.songs.length)LIB.songs.push({id:uid(),title:"Nova música",artist:"",key:"",time:"4/4",shift:0,sections:[{name:"Estrofe",text:""}]});S=LIB.songs[0];LIB.cur=S.id;fields();all()};
 $("expAll").onclick=()=>out("minhas-cifras.json",{app:"cifras",version:2,songs:LIB.songs,sets:LIB.sets});
 $("expOne").onclick=()=>out(fname(S.title)+".json",{app:"cifras",version:1,songs:[S]});
 $("imp").onclick=()=>$("file").click();

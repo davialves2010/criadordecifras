@@ -10,6 +10,9 @@ js/                 a lógica, dividida por assunto (tabela abaixo)
 sw.js               service worker (offline) — precisa ficar na raiz
 manifest.json       configuração do PWA (instalar no celular)
 icon.svg            ícone do app
+privacidade.html    política de privacidade e termos de uso
+tests/              testes automáticos (rodar: node --test tests/*.test.js)
+.github/workflows/  roda os testes a cada push no GitHub
 supabase/schema.sql banco de dados (tabelas, RLS e funções)
 ```
 
@@ -25,6 +28,7 @@ supabase/schema.sql banco de dados (tabelas, RLS e funções)
 | `js/sets.js` | Repertórios (listas de músicas) |
 | `js/stage.js` | Modo palco: rolagem, fonte, tela sempre acesa e atalhos |
 | `js/library.js` | Ações da biblioteca: nova, duplicar, excluir, exportar e importar arquivo |
+| `js/chordpro.js` | Exportar/importar ChordPro (.cho) |
 | `js/history.js` | Desfazer / refazer |
 | `js/modes.js` | Barra de visualização, modo Cartões/Texto e botões de partes |
 | `js/settings.js` | Barra de topo, página de configurações e tema |
@@ -36,6 +40,7 @@ supabase/schema.sql banco de dados (tabelas, RLS e funções)
 | `js/share.js` | Compartilhar por link e visualizador de links |
 | `js/trash.js` | Lixeira (restaurar músicas excluídas) |
 | `js/account.js` | Sincronizar, sair, excluir conta e inicialização do login |
+| `js/a11y.js` | Acessibilidade: rótulos, estados e diálogos |
 
 > Os scripts são "clássicos" (sem `import`) e **a ordem de `<script>` no `index.html` importa**: cada arquivo usa funções e variáveis dos anteriores. Para mexer num assunto, abra só o arquivo dele.
 
@@ -65,9 +70,17 @@ No SQL Editor rode `select tablename, rowsecurity from pg_tables where tablename
 - **Gerenciar links:** *Configurações → Links compartilhados* lista, copia e apaga os links criados.
 - **Compartilhar por link:** *⋯ Mais → Compartilhar esta* ou *Repertórios → Link*. Quem tem o link vê a cifra sem login e pode salvá-la na própria conta. O link é uma cópia (snapshot) e **qualquer pessoa com o link pode ler**.
 - **Importar cifra:** cole em *Colar cifra*; reconhece `Intro: C G Am`, `Refrão (2x)`, acordes como `C7M`, `Dm7(b5)`, `Asus4`, e mantém tablaturas em fonte monoespaçada.
-- **Lixeira:** músicas excluídas ficam 30 dias (neste aparelho) em *⋯ Mais → Lixeira*.
+- **Lixeira:** músicas e repertórios excluídos ficam 30 dias em *⋯ Mais → Lixeira* e aparecem em todos os seus aparelhos.
+- **ChordPro:** *⋯ Mais → Exportar ChordPro* gera um `.cho`; *Importar* também lê `.cho`, `.crd`, `.chordpro` e `.pro`.
+- **Privacidade e termos:** página `privacidade.html`, ligada na tela de login. **Troque `[COLOQUE AQUI SEU E-MAIL]` pelo seu contato** e revise o texto.
 - **Conflitos de sincronização:** se a mesma música for editada em dois aparelhos, a versão mais nova vence e a sua versão local é guardada como cópia "(versão local – conflito)".
 
 ## Dicas
 - Para imprimir sem data e endereço, desmarque **Cabeçalhos e rodapés** na janela de impressão.
 - Faça backup com **Exportar tudo** de vez em quando.
+
+## Testes
+```bash
+node --test tests/*.test.js
+```
+Sem dependências (Node 18+). Cobrem o importador de cifras, a transposição, o capotraste sugerido e o ChordPro. Ao achar uma cifra que importa errado, copie-a para um teste novo em `tests/app.test.js` antes de corrigir o parser.

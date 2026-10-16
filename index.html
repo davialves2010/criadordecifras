@@ -28,7 +28,7 @@
    <button class="p wide" id="asubmit">Entrar</button>
    <button class="linkb" id="aforgot">Esqueci a senha</button>
    <div class="help" id="amsg" hidden style="margin-top:10px"></div>
-   <small class="apriv">Suas cifras ficam guardadas na sua conta e só você tem acesso. Você pode exportar tudo ou excluir a conta e os dados quando quiser, pelo menu ⋯.</small>
+   <small class="apriv">Suas cifras ficam guardadas na sua conta e só você tem acesso. Você pode exportar tudo ou excluir a conta e os dados quando quiser, nas Configurações. Ao continuar, você concorda com os <a href="privacidade.html" target="_blank" rel="noopener">Termos e a Política de Privacidade</a>.</small>
   </div>
  </div>
 </div>
@@ -83,7 +83,7 @@
    <label style="margin-top:0">Minhas músicas (<span id="cnt">0</span>)</label>
    <input id="q" placeholder="Buscar por título, artista ou letra…"><div class="chips" id="tagbar"></div>
    <div id="list"></div>
-   <div class="bar"><button class="p" id="new">+ Nova</button><span class="menuwrap"><button id="more">⋯ Mais</button><div class="pop" id="pop" hidden><button id="dup">Duplicar esta</button><button id="del">Excluir esta</button><hr><button id="shOne">🔗 Compartilhar esta</button><button id="trashb">🗑 Lixeira</button><button id="expOne">⬇ Exportar esta</button><button id="expAll">⬇ Exportar tudo</button><button id="imp">⬆ Importar</button><button id="ex">Carregar exemplo</button></div></span><input type="file" id="file" accept=".json,application/json" hidden></div>
+   <div class="bar"><button class="p" id="new">+ Nova</button><span class="menuwrap"><button id="more">⋯ Mais</button><div class="pop" id="pop" hidden><button id="dup">Duplicar esta</button><button id="del">Excluir esta</button><hr><button id="shOne">🔗 Compartilhar esta</button><button id="trashb">🗑 Lixeira</button><button id="expOne">⬇ Exportar esta</button><button id="expCho">⬇ Exportar ChordPro</button><button id="expAll">⬇ Exportar tudo</button><button id="imp">⬆ Importar</button><button id="ex">Carregar exemplo</button></div></span><input type="file" id="file" accept=".json,application/json,.cho,.crd,.chordpro,.pro" hidden></div>
    <div class="help">Suas músicas ficam na sua conta (nuvem) e neste aparelho. Use 🔗 Compartilhar para enviar por link ou Exportar para backup.</div>
   </section>
 
@@ -137,7 +137,7 @@
    <div class="crow"><div><b>Resumo</b><span class="muted" id="cfg-stats"></span></div></div>
    <div class="crow"><div><b>Backup completo</b><span class="muted">Baixa todas as músicas e repertórios em um arquivo.</span></div><button id="m-exp">⬇ Exportar tudo</button></div>
    <div class="crow"><div><b>Música aberta</b><span class="muted">Baixa só a música que você está editando.</span></div><button id="m-expo">⬇ Exportar esta</button></div>
-   <div class="crow"><div><b>Importar arquivo</b><span class="muted">Acrescenta as músicas do arquivo à sua biblioteca.</span></div><button id="m-imp">⬆ Importar</button></div>
+   <div class="crow"><div><b>Importar arquivo</b><span class="muted">Acrescenta as músicas do arquivo (.json ou ChordPro) à sua biblioteca.</span></div><button id="m-imp">⬆ Importar</button></div>
    <div class="crow"><div><b>Links compartilhados</b><span class="muted">Veja, copie ou apague os links que você criou.</span></div><button id="m-links">Gerenciar</button></div>
    <div class="crow"><div><b>Música de exemplo</b><span class="muted">Adiciona “Abra os Olhos do Meu Coração”.</span></div><button id="m-ex">Adicionar</button></div>
   </section>
@@ -152,7 +152,7 @@
   <section class="ccard danger">
    <div class="crow"><div><b>Excluir minha conta</b><span class="muted">Apaga a conta e todas as cifras da nuvem. Não dá para desfazer.</span></div><button id="m-del" class="dng">Excluir conta</button></div>
   </section>
-  <p class="muted cfgfoot">🎼 Montador de Cifras</p>
+  <p class="muted cfgfoot">🎼 Montador de Cifras · <a href="privacidade.html" target="_blank" rel="noopener">Privacidade e Termos</a></p>
  </div>
 </div>
 <div id="helpbox" class="modal" hidden><div class="mbox">
@@ -192,6 +192,7 @@
 <script src="js/sets.js"></script>
 <script src="js/stage.js"></script>
 <script src="js/library.js"></script>
+<script src="js/chordpro.js"></script>
 <script src="js/history.js"></script>
 <script src="js/modes.js"></script>
 <script src="js/settings.js"></script>
@@ -203,5 +204,6 @@
 <script src="js/share.js"></script>
 <script src="js/trash.js"></script>
 <script src="js/account.js"></script>
+<script src="js/a11y.js"></script>
 </body>
 </html>
