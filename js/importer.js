@@ -7,7 +7,10 @@ const isChordLine=l=>{const t=l.trim().split(/\s+/).filter(Boolean);return t.len
 const HEAD=/^\[?\s*(intro(dução|ducao)?|estrofe|verso|refr[aã]o|coro|ponte|pr[eé][- ]?refr[aã]o|final|solo|interl[uú]dio|outro|tag)\b[^\n]{0,20}?\]?\s*:?\s*$/i;
 const BH=/^\[([^\]]+)\]\s*((?:\d+\s*x|x\s*\d+))?\s*$/i;
 const isHdr=l=>{const t=l.trim(),m=t.match(BH);return(!!m&&!CH.test(m[1].trim()))||(!isChordLine(t)&&HEAD.test(t))};
-const IH=/^\s*\[?\s*(intro(?:dução|ducao)?|solo|interl[uú]dio|final|ponte|refr[aã]o|estrofe|coro|outro)\s*(\(?\s*(?:\d+\s*x|x\s*\d+)\s*\)?)?\s*\]?\s*[:\-]\s*(\S.*)$/i;
+const IH=/^\s*\[?\s*(intro(?:dução|ducao)?|solo|interl[uú]dio|final|ponte|refr[aã]o|estrofe|coro|outro)\s*(\(?\s*(?:\d+\s*x|x\s*\d+)\s*\)?)?\s*\]?\s*[:\-]?\s*(\S.*)$/i;
+const hn=n=>{let rep="";const r2=n.match(/\(?\s*(\d+\s*x|x\s*\d+)\s*\)?\s*$/i);if(r2){rep=r2[1].replace(/\s/g,"");n=n.replace(r2[0],"").trim()||n}return{name:n[0].toUpperCase()+n.slice(1),rep}};
+/* "( G9 C/E )" -> chama de linha de acordes, trocando os parênteses por espaços (mantém o alinhamento) */
+const fixParen=l=>{if(!/[()]/.test(l))return l;const l2=l.replace(/\S+/g,t=>/\(/.test(t)&&/\)/.test(t)?t:t.replace(/[()]/g," "));return isChordLine(l2)&&!isChordLine(l)?l2:l};
 function conv(chordL,lyric){
  let res=lyric.replace(/\t/g,"    ");
  const pos=[];chordL.replace(/\t/g,"    ").replace(/\S+/g,(m,i)=>{if(CH.test(nb(m)))pos.push([i,m])});
@@ -16,14 +19,16 @@ function conv(chordL,lyric){
 }
 function chordOnly(l){return l.trim().split(/\s+/).map(x=>{if(CH.test(nb(x))){const n=nt(x);return "["+nb(x)+"]"+(n?"{"+n+"}":"")}return x}).join(" ")}
 function parse(txt){
- const L=txt.replace(/\r/g,"").split("\n"),secs=[];let cur=null;
+ const L=txt.replace(/\r/g,"").split("\n").map(fixParen),secs=[];let cur=null;
  const flush=()=>{if(cur&&(cur.lines.length||cur.note||cur.name)){
   const co=cur.lines.length>0&&cur.lines.every(x=>/^[\s|:\[\]\-x\d]*$/.test(x.replace(/\[[^\]]+\]|\{[^}]*\}/g,"")));
   const s={name:cur.name||(co&&!secs.length?"Introdução":"Estrofe"),text:cur.lines.join("\n")};
   if(cur.rep)s.rep=cur.rep;if(cur.note)s.note=cur.note;secs.push(s)}cur=null};
  for(let i=0;i<L.length;i++){
   const l=L[i];
-  if(!l.trim()){flush();continue}
+  if(!l.trim()){if(cur&&cur.name&&!cur.lines.length&&!cur.note)continue;flush();continue}
+  const ib=l.match(/^\s*\[([^\]\n]+)\]\s*(?:[:\-]\s*)?(\S.*)$/);
+  if(ib&&!CH.test(ib[1].trim())&&isChordLine(ib[2])){flush();const h=hn(ib[1].trim());cur={name:h.name,rep:h.rep,lines:[chordOnly(ib[2])],note:""};continue}
   const ih=l.match(IH);
   if(ih&&isChordLine(ih[3])){flush();cur={name:ih[1][0].toUpperCase()+ih[1].slice(1).toLowerCase(),rep:(ih[2]||"").replace(/[\s()]/g,""),lines:[chordOnly(ih[3])],note:""};continue}
   if(isHdr(l)){

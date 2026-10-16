@@ -27,7 +27,7 @@ async function push(){
  finally{PUSHING=false;if(AGAIN){AGAIN=false;schedPush()}}
 }
 async function pull(){
- const{data,error}=await sb.from("cifras_items").select("id,kind,data,updated,deleted");
+ const{data,error}=await sb.from("cifras_items").select("id,kind,data,updated,deleted").eq("user_id",USER.id);
  if(error){SYNCERR=error;setSync("err",error.message);return false}
  LIB.synced=LIB.synced||{};LIB.dels=LIB.dels||[];
  const tb=new Map(LIB.dels.map(t=>[t.id,t]));let changed=false;

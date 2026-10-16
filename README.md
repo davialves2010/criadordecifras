@@ -46,6 +46,9 @@ supabase/schema.sql banco de dados (tabelas, RLS e funções)
 4. **Authentication → URL Configuration**: em *Site URL* e *Redirect URLs* coloque o endereço publicado (ex.: `https://seu-app.vercel.app/`).
 5. (Opcional) **Authentication → Providers → Google**, para o botão "Continuar com Google".
 
+### Conferir se a segurança (RLS) está ativa
+No SQL Editor rode `select tablename, rowsecurity from pg_tables where tablename in ('cifras_items','cifras_shares');`. As duas linhas precisam mostrar `true`. Se aparecer `false`, qualquer usuário logado enxerga as cifras dos outros: rode o `supabase/schema.sql` de novo.
+
 ## 2. Publicar
 **Vercel:** importe o repositório em https://vercel.com/new, *Framework Preset: Other*, sem build. Cada `git push` publica de novo.
 **GitHub Pages:** *Settings → Pages → Branch: main / (root)*.
