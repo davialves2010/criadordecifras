@@ -14,3 +14,9 @@ async function installApp(){
 }
 $("instbtn").onclick=installApp;
 $("m-install").onclick=()=>{closeCfg();installApp()};
+
+/* recarrega sozinho quando uma versão nova do app assume (exceto no modo palco) */
+if("serviceWorker" in navigator){
+ const had=!!navigator.serviceWorker.controller;let rl=false;
+ navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!had||rl||!$("stage").hidden)return;rl=true;toast("Nova versão instalada. Atualizando…");setTimeout(()=>location.reload(),800)});
+}
