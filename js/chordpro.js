@@ -60,3 +60,4 @@ $("file").onchange=async function(e){
  }
  return _jsonImport.call(this,e);
 };
+$("m-cho").onclick=()=>$("expCho").click();

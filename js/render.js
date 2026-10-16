@@ -75,7 +75,14 @@ $("mstage").onclick=()=>$("stg0").click();
 try{new ResizeObserver(fit).observe(document.querySelector(".wrap"))}catch(e){addEventListener("resize",fit)}
 try{document.fonts.ready.then(()=>{fit();guides()})}catch(e){}
 addEventListener("load",()=>{fit();try{guides()}catch(e){}});
-$("more").onclick=e=>{e.stopPropagation();$("pop").hidden=!$("pop").hidden};
+function placePop(){
+ const p=$("pop"),r=$("more").getBoundingClientRect(),below=innerHeight-r.bottom-12,above=r.top-12,down=below>=Math.min(340,above);
+ p.style.position="fixed";p.style.left=Math.max(8,Math.min(r.left,innerWidth-p.offsetWidth-8))+"px";
+ p.style.maxHeight=Math.max(120,down?below:above)+"px";p.style.overflow="auto";
+ if(down){p.style.top=(r.bottom+4)+"px";p.style.bottom="auto"}else{p.style.bottom=(innerHeight-r.top+4)+"px";p.style.top="auto"}
+}
+$("more").onclick=e=>{e.stopPropagation();const p=$("pop");p.hidden=!p.hidden;if(!p.hidden)placePop()};
+document.addEventListener("scroll",e=>{const p=$("pop");if(!p.hidden&&!p.contains(e.target))p.hidden=true},true);
 $("pop").onclick=e=>{const b=e.target.closest("button");if(b&&b.id!=="del")$("pop").hidden=true};
 document.addEventListener("click",e=>{if(!e.target.closest(".menuwrap"))$("pop").hidden=true});
 $("acc").onchange=()=>{S.acc=$("acc").value;save();preview()};
