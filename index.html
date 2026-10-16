@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Monte, transponha e imprima cifras em PDF. Biblioteca, repertórios e modo palco.">
-<meta name="theme-color" content="#c8102e"><link rel="manifest" href="manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#c8102e"><link rel="manifest" href="manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎼%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Open+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <title>Montador de Cifras</title>
@@ -40,6 +40,7 @@
  <span class="sv" id="sv"></span><i class="dot" id="dot"></i>
  <button id="back2" hidden>← Música</button>
  <button class="ib" id="undo" title="Desfazer (Ctrl+Z)" disabled>↶</button><button class="ib" id="redo" title="Refazer (Ctrl+Y)" disabled>↷</button>
+ <button class="ib" id="instbtn" hidden>⬇ Instalar</button>
  <button class="ib" id="newtop" title="Nova música">＋ Nova</button>
  <button id="stg0">🎤 Palco</button><button class="p" id="print" title="Na janela de impressão, escolha “Salvar como PDF”">🖨<span class="pt"> Imprimir / PDF</span></button>
  <button class="avb" id="tmore" title="Menu e configurações">👤</button>
@@ -141,6 +142,7 @@
 
   <h4>Ajuda</h4>
   <section class="ccard">
+   <div class="crow"><div><b>Instalar no celular</b><span class="muted">Use como app, com ícone na tela inicial e modo offline.</span></div><button id="m-install">Instalar</button></div>
    <div class="crow"><div><b>Atalhos e dicas</b><span class="muted">Como escrever acordes, desfazer, PDF e backup.</span></div><button id="m-help">Abrir</button></div>
   </section>
 

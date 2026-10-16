@@ -50,6 +50,11 @@ supabase/schema.sql banco de dados (tabelas, RLS e funções)
 **Vercel:** importe o repositório em https://vercel.com/new, *Framework Preset: Other*, sem build. Cada `git push` publica de novo.
 **GitHub Pages:** *Settings → Pages → Branch: main / (root)*.
 
+## Instalar no celular
+- **Android (Chrome):** aparece o botão **⬇ Instalar** na barra do topo (ou *Configurações → Instalar no celular*). Também serve o menu ⋮ → *Instalar app*.
+- **iPhone/iPad (Safari):** Compartilhar (□↑) → *Adicionar à Tela de Início*. O iOS não permite botão automático.
+- Exige o site em **HTTPS** (Vercel e GitHub Pages já são).
+
 ## Recursos
 - **Offline/PWA:** abra o site uma vez online; depois dá para instalar na tela inicial e usar sem internet. As alterações sincronizam ao voltar a conexão. Ao atualizar o app, aumente `V` em `sw.js` (ex.: `cifras-v3`); se criar um arquivo novo, inclua-o na lista `SHELL`.
 - **Modo palco:** tela sempre acesa (Wake Lock), `Espaço` rola/pausa, `←`/`→` trocam de música, `Esc` fecha.
