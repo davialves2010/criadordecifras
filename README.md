@@ -60,7 +60,9 @@ No SQL Editor rode `select tablename, rowsecurity from pg_tables where tablename
 
 ## Recursos
 - **Offline/PWA:** abra o site uma vez online; depois dá para instalar na tela inicial e usar sem internet. As alterações sincronizam ao voltar a conexão. Ao atualizar o app, aumente `V` em `sw.js` (ex.: `cifras-v3`); se criar um arquivo novo, inclua-o na lista `SHELL`.
-- **Modo palco:** tela sempre acesa (Wake Lock), `Espaço` rola/pausa, `←`/`→` trocam de música, `Esc` fecha.
+- **Modo palco:** tela sempre acesa (Wake Lock), toque na letra para pausar/retomar a rolagem, **Ir para…** pula para uma seção, botão ⛶ de tela cheia (não existe no iPhone), `Espaço` rola/pausa, `←`/`→` trocam de música, `Esc` fecha.
+- **Capotraste sugerido:** botão **🎸 Capo?** na barra da folha calcula a casa com mais acordes abertos e aplica se você quiser.
+- **Gerenciar links:** *Configurações → Links compartilhados* lista, copia e apaga os links criados.
 - **Compartilhar por link:** *⋯ Mais → Compartilhar esta* ou *Repertórios → Link*. Quem tem o link vê a cifra sem login e pode salvá-la na própria conta. O link é uma cópia (snapshot) e **qualquer pessoa com o link pode ler**.
 - **Importar cifra:** cole em *Colar cifra*; reconhece `Intro: C G Am`, `Refrão (2x)`, acordes como `C7M`, `Dm7(b5)`, `Asus4`, e mantém tablaturas em fonte monoespaçada.
 - **Lixeira:** músicas excluídas ficam 30 dias (neste aparelho) em *⋯ Mais → Lixeira*.

@@ -7,7 +7,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&WANT&&!WL
 document.addEventListener("keydown",e=>{if($("stage").hidden||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName||""))return;if(e.key===" "){e.preventDefault();$("play").click()}else if(e.key==="ArrowRight")$("sn").click();else if(e.key==="ArrowLeft")$("sp").click()});
 function stageRender(){
  const it=SI[SX];$("stg").innerHTML=sheetHTML(it.sg,it.x+SS);$("stg").style.setProperty("--fs",FS);
- $("tv").textContent=(SS>0?"+":"")+SS;$("sti").textContent=SI.length>1?(SX+1)+"/"+SI.length:"";$("stage").scrollTop=0;
+ $("tv").textContent=(SS>0?"+":"")+SS;$("sti").textContent=SI.length>1?(SX+1)+"/"+SI.length:"";$("stage").scrollTop=0;secList();
 }
 function play(on){PLAY=on;$("play").textContent=on?"⏸ Pausar":"▶ Rolar";if(on)requestAnimationFrame(tick)}
 function tick(){if(!PLAY)return;ACC+=$("spd").value*0.25;const n=Math.floor(ACC);if(n>0){$("stage").scrollTop+=n;ACC-=n}requestAnimationFrame(tick)}
@@ -26,3 +26,18 @@ $("td").onclick=()=>{SS=(SS-1)%12;stageRender()};
 $("fu").onclick=()=>{FS=Math.min(48,FS+2);stageRender()};
 $("fd").onclick=()=>{FS=Math.max(10,FS-2);stageRender()};
 $("play").onclick=()=>play(!PLAY);
+
+/* ---- palco: pular para seção, toque para pausar, tela cheia ---- */
+function secList(){
+ const sel=$("ssec"),bx=[...$("stg").querySelectorAll(".box")];
+ sel.innerHTML='<option value="">Ir para…</option>'+bx.map((b,i)=>`<option value="${i}">${i+1}. ${esc(((b.querySelector(".lb")||{}).firstChild||{}).textContent||"")}</option>`).join("");
+ sel.hidden=bx.length<2;
+}
+$("ssec").onchange=()=>{const v=$("ssec").value;if(v==="")return;const b=$("stg").querySelectorAll(".box")[+v];if(b)b.scrollIntoView({behavior:"smooth",block:"start"});$("ssec").value=""};
+let TAPPED=false;
+$("stg").addEventListener("click",e=>{if(e.target.closest(".c"))return;if(PLAY){play(false);TAPPED=true}else if(TAPPED){play(true);TAPPED=false}});
+$("play").addEventListener("click",()=>{TAPPED=false});
+const FSE=document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen;
+if(!FSE)$("sfs").hidden=true;
+$("sfs").onclick=()=>{try{if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);else FSE.call($("stage"))}catch(e){}};
+$("sx").addEventListener("click",()=>{try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}});

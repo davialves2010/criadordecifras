@@ -101,6 +101,7 @@
   <div class="vbar" id="vbar">
    <div class="vg"><span class="vl">Tom</span><button id="dn" title="Meio tom abaixo">−</button><select id="ksel" title="Tom de saída"></select><button id="up" title="Meio tom acima">+</button><small id="shift"></small><button id="rs" title="Voltar ao tom original">↺</button></div>
    <div class="vg"><button id="deg" class="chipb" title="Mostrar números no lugar das letras">1·4·5 Graus</button></div>
+   <div class="vg"><button id="capos" title="Sugerir o capotraste mais fácil">🎸 Capo?</button></div>
    <div class="vg"><span class="vl">Colunas</span><div class="seg2"><button data-cols="1">1</button><button data-cols="2">2</button></div></div>
    <div class="vg"><span class="vl">Letra</span><button id="fdn">A−</button><small id="fval"></small><button id="fup">A+</button></div>
    <div class="vg"><span class="vl">Margem</span><select id="msel"><option value="c">Compacta</option><option value="n">Normal</option><option value="w">Ampla</option></select></div>
@@ -137,6 +138,7 @@
    <div class="crow"><div><b>Backup completo</b><span class="muted">Baixa todas as músicas e repertórios em um arquivo.</span></div><button id="m-exp">⬇ Exportar tudo</button></div>
    <div class="crow"><div><b>Música aberta</b><span class="muted">Baixa só a música que você está editando.</span></div><button id="m-expo">⬇ Exportar esta</button></div>
    <div class="crow"><div><b>Importar arquivo</b><span class="muted">Acrescenta as músicas do arquivo à sua biblioteca.</span></div><button id="m-imp">⬆ Importar</button></div>
+   <div class="crow"><div><b>Links compartilhados</b><span class="muted">Veja, copie ou apague os links que você criou.</span></div><button id="m-links">Gerenciar</button></div>
    <div class="crow"><div><b>Música de exemplo</b><span class="muted">Adiciona “Abra os Olhos do Meu Coração”.</span></div><button id="m-ex">Adicionar</button></div>
   </section>
 
@@ -167,13 +169,14 @@
  <button class="p" id="hclose">Fechar</button>
 </div></div>
 <div id="shv" class="shv" hidden><div class="shbar"><button id="shx">✕ Fechar</button><b id="shttl"></b><button class="p" id="shimp">💾 Salvar na minha conta</button></div><div class="sheet" id="shsheet"></div></div>
+<div id="shlinks" class="modal" hidden><div class="mbox"><h3>Links compartilhados</h3><p class="muted">Apagar um link faz ele parar de funcionar para quem o recebeu.</p><div id="shll"></div><button class="p" id="shlc" style="margin-top:12px">Fechar</button></div></div>
 <div id="trashbox" class="modal" hidden><div class="mbox"><h3>Lixeira</h3><div id="trashl"></div><button class="p" id="tclose" style="margin-top:12px">Fechar</button></div></div>
 <div id="tip" class="tip"></div>
 <div id="stage" hidden>
  <div id="sbar">
   <button id="sx">✕ Fechar</button><button id="sp">◀</button><span id="sti"></span><button id="sn">▶</button>
   <button id="td">−</button><b id="tv">0</b><button id="tu">+</button>
-  <button id="fd">A−</button><button id="fu">A+</button>
+  <button id="fd">A−</button><button id="fu">A+</button><select id="ssec" title="Ir para a seção" style="width:auto;max-width:150px"></select><button id="sfs" title="Tela cheia">⛶</button>
   <button id="mt" title="Metrônomo (usa o BPM da música)">♩ Metrônomo</button><button id="mm">−</button><b id="mb" class="mbpm">80</b><button id="mp">+</button><button id="play">▶ Rolar</button><input type="range" id="spd" min="1" max="10" value="3" style="width:90px">
  </div>
  <div id="stg" class="sheet stage"></div>

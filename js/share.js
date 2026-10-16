@@ -24,3 +24,23 @@ function importShare(d){
 }
 $("shx").onclick=shClose;
 $("shimp").onclick=()=>{if(!USER){try{sessionStorage.setItem("cifras_pending",JSON.stringify(SHD))}catch(e){}shClose();toast("Entre ou crie sua conta: a cifra será salva ao entrar.");return}importShare(SHD)};
+
+/* ---- gerenciar links criados ---- */
+async function loadLinks(){
+ const b=$("shll");b.innerHTML='<div class="help">Carregando…</div>';
+ const{data,error}=await sb.from("cifras_shares").select("id,kind,created,data").order("created",{ascending:false});
+ if(error){b.innerHTML='<div class="help">Erro: '+esc(error.message)+'</div>';return}
+ b.innerHTML="";
+ data.forEach(x=>{
+  const url=location.origin+location.pathname+"?share="+x.id,d0=x.data||{},t=x.kind==="set"?"📋 "+((d0.set||{}).name||"Repertório"):"🎵 "+(((d0.songs||[])[0]||{}).title||"Música");
+  const d=document.createElement("div");d.className="sit";
+  d.innerHTML=`<span class="n">${esc(t)}</span><small>${new Date(x.created).toLocaleDateString("pt-BR")}</small><button>Copiar</button><button title="Apagar link">✕</button>`;
+  const[c,r]=d.querySelectorAll("button");
+  c.onclick=async()=>{try{await navigator.clipboard.writeText(url);toast("Link copiado.")}catch(e){prompt("Copie o link:",url)}};
+  r.onclick=async()=>{if(!armed(r))return;const{error}=await sb.from("cifras_shares").delete().eq("id",x.id);if(error){msg("Não foi possível apagar: "+error.message);return}loadLinks()};
+  b.appendChild(d)});
+ if(!data.length)b.innerHTML='<div class="help">Você ainda não criou links. Use 🔗 Compartilhar.</div>';
+}
+$("m-links").onclick=()=>{if(!USER||!sb)return;$("shlinks").hidden=false;loadLinks()};
+$("shlc").onclick=()=>{$("shlinks").hidden=true};
+$("shlinks").onclick=e=>{if(e.target===$("shlinks"))$("shlinks").hidden=true};

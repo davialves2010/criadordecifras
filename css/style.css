@@ -227,3 +227,7 @@ html:not(.locked) #auth{display:none}
 .shv{position:fixed;inset:0;z-index:110;background:var(--bg);overflow:auto;padding-bottom:env(safe-area-inset-bottom,0px)}.shv[hidden]{display:none}
 .shbar{position:sticky;top:0;z-index:2;display:flex;gap:8px;align-items:center;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;background:var(--panel);border-bottom:1px solid var(--bd)}
 .shbar b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.shv .sheet{margin:12px auto}
+
+/* ---- v10: palco (seções) ---- */
+.stage .box{scroll-margin-top:70px}
+#sbar select{padding:4px 6px;font-size:13px;background:#2a2e35;color:#eee;border-color:#444}
