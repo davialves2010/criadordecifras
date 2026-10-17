@@ -232,3 +232,15 @@ html:not(.locked) #auth{display:none}
 /* ---- v11: acessibilidade e links ---- */
 button:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .apriv a,.cfgfoot a{color:var(--ac)}
+
+/* ---- v12: leitura mais fácil e menus em grupos ---- */
+body{font-size:15px}
+.muted,.help,.sit small,.lib .it small,.card .pv,.snip{font-size:13px}
+label{font-size:13px}
+.vl{font-size:12px}
+.ph{display:block;padding:6px 10px 2px;color:var(--mut);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.welcome{background:var(--bg);border:1px solid var(--ac);border-radius:12px;padding:12px;margin-bottom:10px}
+.welcome ol{padding-left:20px;margin:6px 0}.welcome li{margin:3px 0}
+.wbtns{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.wbtns button{flex:1 1 130px;padding:10px}
+.sl{font-size:12px;color:#aaa}
+@media(max-width:860px){.bar button,.tabs button,.vbar button,.vbar select{min-height:40px}}

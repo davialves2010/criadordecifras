@@ -51,6 +51,12 @@
   <div class="help" id="msg" style="display:none;margin:0 0 8px"></div>
 
   <section id="t-edit" class="tab">
+   <div class="welcome" id="welcome" hidden>
+    <b>👋 Como começar</b>
+    <ol><li>Cole ou escreva a cifra da música.</li><li>Escolha o tom na barra acima da folha.</li><li>Toque em <b>🎤 Palco</b> para tocar ou <b>🖨 Imprimir / PDF</b>.</li></ol>
+    <div class="wbtns"><button class="p" id="w-paste">📋 Colar uma cifra</button><button id="w-new">✏️ Começar do zero</button><button id="w-imp">⬆ Importar arquivo</button></div>
+    <button class="linkb" id="wx">Entendi, não mostrar mais</button>
+   </div>
    <div class="help" id="fnote" hidden>🔗 Esta música acompanha um repertório ao vivo: quando o dono mudar, ela é atualizada e suas edições aqui são substituídas. Para editar livremente, vá em Repertórios → Parar de seguir.</div>
    <details open><summary>Dados da música</summary>
     <label>Título</label><input id="title">
@@ -62,7 +68,7 @@
     <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="chart" style="width:auto"> Mostrar quadro de acordes na folha</label>
     <label>Acidentes na transposição</label><select id="acc"><option value="">Automático</option><option value="flat">Bemóis (Bb, Eb, Ab)</option><option value="sharp">Sustenidos (A#, D#, G#)</option></select>
    </details>
-   <div class="modebar"><div class="seg2" id="modeseg"><button data-md="cards" class="on">▦ Cartões</button><button data-md="text">✎ Texto</button></div><button id="paste">📋 Colar cifra</button></div>
+   <div class="modebar"><div class="seg2" id="modeseg"><button data-md="cards" class="on" title="Um bloco para cada parte (Refrão, Estrofe…)">▦ Cartões</button><button data-md="text" title="Escreva a cifra do jeito clássico: acordes em cima, letra embaixo">✎ Texto</button></div><button id="paste">📋 Colar cifra</button></div>
    <div class="chips parts" id="parts"></div>
    <div id="cardsbox">
     <details><summary>Como escrever os acordes</summary><div class="help" style="margin-top:6px">Acorde entre colchetes, logo antes da sílaba onde ele toca:<br><code>[C]Abra os olhos do meu [G]coração</code><br>Nota pequena ao lado do acorde: <code>[C]{segura no C}</code><br>Linha só de acordes: <code>| [C] [G/B] [F/A] [C] :||</code><br>Prefere o formato clássico (acordes em cima, letra embaixo)? Use o modo <b>✎ Texto</b>.</div></details>
@@ -84,7 +90,13 @@
    <label style="margin-top:0">Minhas músicas (<span id="cnt">0</span>)</label>
    <input id="q" placeholder="Buscar por título, artista ou letra…"><select id="sortsel" aria-label="Ordenar músicas" style="margin-top:6px"><option value="title">Ordem: A–Z</option><option value="recent">Ordem: mais recentes</option><option value="artist">Ordem: artista</option><option value="key">Ordem: tom</option></select><div class="chips" id="tagbar"></div>
    <div id="list"></div>
-   <div class="bar"><button class="p" id="new">+ Nova</button><span class="menuwrap"><button id="more">⋯ Mais</button><div class="pop" id="pop" hidden><button id="dup">Duplicar esta</button><button id="del">Excluir esta</button><hr><button id="shOne">🔗 Compartilhar esta</button><button id="trashb">🗑 Lixeira</button><button id="expOne">⬇ Exportar esta</button><button id="expCho">⬇ Exportar ChordPro</button><button id="expAll">⬇ Exportar tudo</button><button id="imp">⬆ Importar</button><button id="ex">Carregar exemplo</button></div></span><input type="file" id="file" accept=".json,application/json,.cho,.crd,.chordpro,.pro" hidden></div>
+   <div class="bar"><button class="p" id="new">+ Nova</button><span class="menuwrap"><button id="more">⋯ Mais</button><div class="pop" id="pop" hidden>
+   <small class="ph">Esta música</small>
+   <button id="dup">Duplicar</button><button id="shOne">🔗 Compartilhar por link</button><button id="expOne">⬇ Exportar (arquivo)</button><button id="expCho">⬇ Exportar ChordPro</button>
+   <hr><small class="ph">Minha biblioteca</small>
+   <button id="expAll">⬇ Exportar tudo (backup)</button><button id="imp">⬆ Importar arquivo</button><button id="trashb">🗑 Lixeira</button><button id="ex">Adicionar música de exemplo</button>
+   <hr><button id="del" class="dng">Excluir esta música</button>
+  </div></span><input type="file" id="file" accept=".json,application/json,.cho,.crd,.chordpro,.pro" hidden></div>
    <div class="help">Suas músicas ficam na sua conta (nuvem) e neste aparelho. Use 🔗 Compartilhar para enviar por link ou Exportar para backup.</div>
   </section>
 
@@ -100,13 +112,13 @@
  </div>
  <div class="wrap">
   <div class="vbar" id="vbar">
-   <div class="vg"><span class="vl">Tom</span><button id="dn" title="Meio tom abaixo">−</button><select id="ksel" title="Tom de saída"></select><button id="up" title="Meio tom acima">+</button><small id="shift"></small><button id="rs" title="Voltar ao tom original">↺</button></div>
-   <div class="vg"><button id="deg" class="chipb" title="Mostrar números no lugar das letras">1·4·5 Graus</button></div>
-   <div class="vg"><button id="capos" title="Sugerir o capotraste mais fácil">🎸 Capo?</button></div>
-   <div class="vg"><span class="vl">Colunas</span><div class="seg2"><button data-cols="1">1</button><button data-cols="2">2</button></div></div>
+   <div class="vg"><span class="vl" title="O tom em que você vai tocar. Use − e + ou escolha na lista.">Tom</span><button id="dn" title="Meio tom abaixo">−</button><select id="ksel" title="Tom de saída"></select><button id="up" title="Meio tom acima">+</button><small id="shift"></small><button id="rs" title="Voltar ao tom original">↺</button></div>
+   <div class="vg"><button id="deg" class="chipb" title="Mostrar números no lugar das letras">Números (1·4·5)</button></div>
+   <div class="vg"><button id="capos" title="Sugerir o capotraste mais fácil">🎸 Sugerir capo</button></div>
+   <div class="vg"><span class="vl" title="Quantas colunas a folha tem">Colunas</span><div class="seg2"><button data-cols="1">1</button><button data-cols="2">2</button></div></div>
    <div class="vg"><span class="vl">Letra</span><button id="fdn">A−</button><small id="fval"></small><button id="fup">A+</button></div>
-   <div class="vg"><span class="vl">Margem</span><select id="msel"><option value="c">Compacta</option><option value="n">Normal</option><option value="w">Ampla</option></select></div>
-   <div class="vg"><span class="vl">Papel</span><div class="seg2"><button data-ori="p">Retrato</button><button data-ori="l">Paisagem</button></div></div>
+   <div class="vg"><span class="vl" title="Espaço nas bordas da folha ao imprimir">Margem</span><select id="msel"><option value="c">Compacta</option><option value="n">Normal</option><option value="w">Ampla</option></select></div>
+   <div class="vg"><span class="vl" title="Retrato (em pé) ou paisagem (deitado)">Papel</span><div class="seg2"><button data-ori="p">Retrato</button><button data-ori="l">Paisagem</button></div></div>
   </div>
   <div class="sheet" id="sheet"></div></div>
 </div>
@@ -148,6 +160,7 @@
   <h4>Ajuda</h4>
   <section class="ccard">
    <div class="crow"><div><b>Instalar no celular</b><span class="muted">Use como app, com ícone na tela inicial e modo offline.</span></div><button id="m-install">Instalar</button></div>
+   <div class="crow"><div><b>Guia de início</b><span class="muted">Mostra de novo os passos para começar.</span></div><button id="m-guide">Mostrar</button></div>
    <div class="crow"><div><b>Atalhos e dicas</b><span class="muted">Como escrever acordes, desfazer, PDF e backup.</span></div><button id="m-help">Abrir</button></div>
   </section>
 
@@ -178,8 +191,8 @@
 <div id="stage" hidden>
  <div id="sbar">
   <button id="sx">✕ Fechar</button><button id="sp">◀</button><span id="sti"></span><button id="sn">▶</button>
-  <button id="td">−</button><b id="tv">0</b><button id="tu">+</button>
-  <button id="fd">A−</button><button id="fu">A+</button><select id="ssec" title="Ir para a seção" style="width:auto;max-width:150px"></select><button id="sfs" title="Tela cheia">⛶</button>
+  <span class="sl">Tom</span><button id="td">−</button><b id="tv">0</b><button id="tu">+</button>
+  <span class="sl">Letra</span><button id="fd">A−</button><button id="fu">A+</button><select id="ssec" title="Ir para a seção" style="width:auto;max-width:150px"></select><button id="sfs" title="Tela cheia">⛶</button>
   <button id="mt" title="Metrônomo (usa o BPM da música)">♩ Metrônomo</button><button id="mm">−</button><b id="mb" class="mbpm">80</b><button id="mp">+</button><button id="play">▶ Rolar</button><input type="range" id="spd" min="1" max="10" value="3" style="width:90px">
  </div>
  <div id="stg" class="sheet stage"></div>
@@ -200,6 +213,7 @@
 <script src="js/modes.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/organize.js"></script>
+<script src="js/welcome.js"></script>
 <script src="js/metronome.js"></script>
 <script src="js/init.js"></script>
 <script src="js/pwa.js"></script>

@@ -34,6 +34,7 @@ supabase/schema.sql banco de dados (tabelas, RLS e funções)
 | `js/modes.js` | Barra de visualização, modo Cartões/Texto e botões de partes |
 | `js/settings.js` | Barra de topo, página de configurações e tema |
 | `js/organize.js` | Ordenação da biblioteca e busca no repertório |
+| `js/welcome.js` | Guia de início para quem chega pela primeira vez |
 | `js/metronome.js` | Metrônomo do modo palco |
 | `js/init.js` | Etiquetas, favorita e primeira renderização da interface |
 | `js/pwa.js` | Registro do service worker (modo offline) |
