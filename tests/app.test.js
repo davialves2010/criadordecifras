@@ -62,3 +62,17 @@ test("ordenação da biblioteca",()=>{
  assert.equal(ord("key",'[{title:"b",key:"G"},{title:"c"},{title:"a",key:"C"}]'),"abc");
  app.run('FILT.sort="title"');
 });
+
+test("seguir link ao vivo: atualiza, acrescenta e remove",async()=>{
+ const a=load(["state.js","render.js","sets.js","settings.js","sync.js","share.js"]);
+ a.run(`USER={id:"u"};schedPush=()=>{};fields=()=>{};editor=()=>{};preview=()=>{};lib=()=>{};toast=()=>{};
+  var payload={live:true,songs:[{id:"s1",title:"Um",sections:[{name:"Estrofe",text:"[C]Oi"}]},{id:"s2",title:"Dois",sections:[]}],set:{id:"x",name:"Culto",items:[{songId:"s1",shift:0},{songId:"s2",shift:2}]}};
+  sb={rpc:async()=>({data:payload,error:null})};LIB.sets.push({id:"L",name:"Seguindo",follow:"SH",items:[]});`);
+ await a.run("followSync()");
+ let r=a.json("({s:LIB.songs.filter(s=>s.follow==='SH').map(s=>s.title),set:LIB.sets.find(s=>s.id==='L')})");
+ assert.deepEqual(r.s.sort(),["Dois","Um"]);assert.equal(r.set.name,"Culto");assert.equal(r.set.items.length,2);assert.equal(r.set.items[1].shift,2);
+ a.run('payload.songs=[{id:"s1",title:"Um editado",sections:[]}];payload.set.items=[{songId:"s1",shift:0}]');
+ await a.run("followSync()");
+ r=a.json("LIB.songs.filter(s=>s.follow==='SH').map(s=>s.title)");
+ assert.deepEqual(r,["Um editado"]);
+});

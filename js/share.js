@@ -25,15 +25,23 @@ function showShare(d,id){SHID=id||null;
  SHD=d;const set=d.set,its=set?set.items:d.songs.map(x=>({songId:x.id,shift:0})),sh=$("shsheet");
  sh.innerHTML=its.map(it=>{const sg=d.songs.find(x=>x.id===it.songId);return sg?`<div class="pg">${sheetHTML(sg,it.shift||0)}</div>`:""}).join("");
  sh.style.setProperty("--z",Math.min(1,(innerWidth-24)/794));
- $("shttl").textContent=set?"Repertório: "+set.name+(d.live?" · 🔴 ao vivo":""):(d.songs[0]&&d.songs[0].title)||"Cifra";$("shv").hidden=false;
+ $("shttl").textContent=set?"Repertório: "+set.name+(d.live?" · 🔴 ao vivo":""):(d.songs[0]&&d.songs[0].title)||"Cifra";$("shimp").textContent=d.live&&d.set?"🔗 Seguir repertório":"💾 Salvar na minha conta";$("shv").hidden=false;
 }
 function importShare(d){
- const idm={};d.songs.forEach(x=>{const id=uid();idm[x.id]=id;LIB.songs.push({...x,id,updated:Date.now()})});
- if(d.set)LIB.sets.push({id:uid(),name:d.set.name,updated:Date.now(),items:d.set.items.filter(i=>idm[i.songId]).map(i=>({songId:idm[i.songId],shift:i.shift||0}))});
- S=songBy(idm[d.songs[0].id])||S;LIB.cur=S.id;VIEW="song";fields();all();lib();shClose();toast("Salvo na sua biblioteca.");
+ const{_sid,...pl}=d,fid=pl.live&&pl.set?(_sid||SHID):null;
+ if(fid&&LIB.sets.some(x=>x.follow===fid)){shClose();toast("Você já segue este repertório.");followSync();return}
+ const idm={};
+ d.songs.forEach(x=>{const id=uid();idm[x.id]=id;const o={...x,id,updated:Date.now()};if(fid){o.follow=fid;o.srcId=x.id}LIB.songs.push(o)});
+ if(d.set){
+  const st={id:uid(),name:d.set.name,updated:Date.now(),items:d.set.items.filter(i=>idm[i.songId]).map(i=>({songId:idm[i.songId],shift:i.shift||0}))};
+  if(fid){st.follow=fid;st.followSig=sig(pl);LIB.curSet=st.id}
+  LIB.sets.push(st);
+ }
+ const f0=d.songs[0];S=(f0&&songBy(idm[f0.id]))||S;LIB.cur=S.id;VIEW="song";fields();all();lib();shClose();
+ toast(fid?"Você agora segue este repertório. Ele se atualiza sozinho.":"Salvo na sua biblioteca.");
 }
 $("shx").onclick=shClose;
-$("shimp").onclick=()=>{if(!USER){try{sessionStorage.setItem("cifras_pending",JSON.stringify(SHD))}catch(e){}shClose();toast("Entre ou crie sua conta: a cifra será salva ao entrar.");return}importShare(SHD)};
+$("shimp").onclick=()=>{if(!USER){try{sessionStorage.setItem("cifras_pending",JSON.stringify({...SHD,_sid:SHID}))}catch(e){}shClose();toast("Entre ou crie sua conta: a cifra será salva ao entrar.");return}importShare(SHD)};
 
 /* ---- gerenciar links criados ---- */
 async function loadLinks(){
@@ -90,3 +98,40 @@ async function refreshShare(){
 }
 setInterval(refreshShare,60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshShare()});
+
+/* ---- seguir um link ao vivo: a cópia na sua conta se atualiza sozinha quando o dono edita ---- */
+let FOLLOWING=false;
+async function followSync(){
+ if(!USER||!sb||FOLLOWING)return;
+ const fs=LIB.sets.filter(x=>x.follow);if(!fs.length)return;
+ FOLLOWING=true;let ch=false;
+ try{
+  for(const st of fs){
+   const{data:d,error}=await sb.rpc("get_share",{p_id:st.follow});
+   if(error||!d||!d.songs)continue;
+   const g=sig(d);if(st.followSig===g)continue;
+   const mine=LIB.songs.filter(s=>s.follow===st.follow),keep=new Set(),idm={};
+   d.songs.forEach(x=>{
+    let l=mine.find(s=>s.srcId===x.id);
+    if(l){const keepId=l.id;Object.keys(l).forEach(k=>delete l[k]);Object.assign(l,clone(x),{id:keepId})}
+    else{l={...clone(x),id:uid()};LIB.songs.push(l)}
+    l.follow=st.follow;l.srcId=x.id;l.updated=Date.now();idm[x.id]=l.id;keep.add(l.id);
+   });
+   mine.filter(s=>!keep.has(s.id)).forEach(s=>{tomb("song",s.id,clone(s));LIB.songs=LIB.songs.filter(y=>y!==s)});
+   if(d.set){st.name=d.set.name;st.items=(d.set.items||[]).filter(i=>idm[i.songId]).map(i=>({songId:idm[i.songId],shift:i.shift||0}))}
+   st.followSig=g;st.updated=Date.now();ch=true;
+  }
+ }catch(e){}finally{FOLLOWING=false}
+ if(ch){
+  if(!LIB.songs.length)LIB.songs.push(blankSong());
+  if(!songBy(S.id))S=LIB.songs[0];
+  LIB.cur=S.id;persist();fields();editor();preview();lib();
+  if(MODE==="text")$("ttxt").value=ser(S.sections);
+  toast("Um repertório que você segue foi atualizado.");
+ }
+}
+$("sunfollow").onclick=()=>{
+ const c=curSet();if(!c||!c.follow||!armed($("sunfollow")))return;
+ const id=c.follow;LIB.songs.forEach(s=>{if(s.follow===id){delete s.follow;delete s.srcId;s.updated=Date.now()}});
+ delete c.follow;delete c.followSig;touchSets();lib();fields();toast("Você parou de seguir. As músicas agora são suas e editáveis.");
+};

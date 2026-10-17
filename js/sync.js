@@ -54,6 +54,7 @@ async function syncNow(manual){
    fields();editor();preview();lib();if(MODE==="text")$("ttxt").value=ser(S.sections);
   }
   setSync(SYNCERR?"err":"ok");
+  try{await followSync()}catch(e){}
   if(CONF){msg("Atenção: "+CONF+" música(s) foi(ram) editada(s) em outro aparelho ao mesmo tempo. Sua versão local foi salva como cópia “conflito”.");CONF=0}else if(manual)msg(SYNCERR?"Não foi possível sincronizar agora.":"Tudo sincronizado.");
  }finally{BUSY=false}
 }
@@ -82,5 +83,6 @@ async function bootUser(user){
  setSync(SYNCERR?"err":"ok");schedPush();
  try{const p=sessionStorage.getItem("cifras_pending");if(p){sessionStorage.removeItem("cifras_pending");importShare(JSON.parse(p))}}catch(e){}
  try{backupCheck()}catch(e){}
+ try{followSync()}catch(e){}
 }
 async function startSession(user){if(BOOT||USER)return;BOOT=true;try{await bootUser(user)}catch(e){console.error(e);showForm();aerr("Erro ao carregar suas cifras: "+(e.message||e))}BOOT=false}

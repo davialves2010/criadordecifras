@@ -51,6 +51,7 @@
   <div class="help" id="msg" style="display:none;margin:0 0 8px"></div>
 
   <section id="t-edit" class="tab">
+   <div class="help" id="fnote" hidden>🔗 Esta música acompanha um repertório ao vivo: quando o dono mudar, ela é atualizada e suas edições aqui são substituídas. Para editar livremente, vá em Repertórios → Parar de seguir.</div>
    <details open><summary>Dados da música</summary>
     <label>Título</label><input id="title">
     <label>Artista</label><input id="artist">
@@ -94,7 +95,7 @@
    <div class="bar"><button id="snew">+ Novo</button><button id="sdel">Excluir</button></div>
    <div id="sitems"></div>
    <input id="saq" placeholder="Buscar música para adicionar…" style="margin-top:6px"><div class="row" style="margin-top:6px"><select id="sadd"></select><button style="flex:0 0 auto" id="saddb">+ Adicionar</button></div>
-   <div class="bar"><button class="p" id="sview">👁 Ver / imprimir repertório</button><button id="sshare">🔗 Link</button><button id="slive" title="Link que se atualiza sozinho quando você muda o repertório">🔴 Link ao vivo</button><button id="back" style="display:none">← Voltar à música</button></div>
+   <div class="bar"><button class="p" id="sview">👁 Ver / imprimir repertório</button><button id="sshare">🔗 Link</button><button id="sunfollow" hidden>🔓 Parar de seguir</button><button id="slive" title="Link que se atualiza sozinho quando você muda o repertório">🔴 Link ao vivo</button><button id="back" style="display:none">← Voltar à música</button></div>
   </section>
  </div>
  <div class="wrap">

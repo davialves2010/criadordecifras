@@ -2,8 +2,8 @@
 /* ---- repertórios ---- */
 const touchSets=()=>{const c=curSet();if(c)c.updated=Date.now();persist();sets();if(VIEW==="set")preview()};
 function sets(){
- const cs=curSet()||LIB.sets[0];if(cs)LIB.curSet=cs.id;
- $("setsel").innerHTML=LIB.sets.map(x=>`<option value="${x.id}"${cs&&x.id===cs.id?" selected":""}>${esc(x.name||"(sem nome)")}</option>`).join("")||"<option>(nenhum repertório)</option>";
+ const cs=curSet()||LIB.sets[0];if(cs)LIB.curSet=cs.id;$("sunfollow").hidden=!(cs&&cs.follow);
+ $("setsel").innerHTML=LIB.sets.map(x=>`<option value="${x.id}"${cs&&x.id===cs.id?" selected":""}>${x.follow?"🔗 ":""}${esc(x.name||"(sem nome)")}</option>`).join("")||"<option>(nenhum repertório)</option>";
  if(document.activeElement!==$("sname"))$("sname").value=cs?cs.name:"";
  const pv=$("sadd").value;
  const sq=$("saq").value;$("sadd").innerHTML=LIB.songs.filter(s=>matchSong(s,sq)).sort(cmpSong).map(s=>`<option value="${s.id}">${esc(s.title||"(sem título)")}${s.artist?" — "+esc(s.artist):""}</option>`).join("")||'<option value="">(nenhuma música encontrada)</option>';

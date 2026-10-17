@@ -55,7 +55,7 @@ function lib(){
   const d=document.createElement("div");d.className="it"+(s===S?" on":"");
   let snip="";
   if(qn&&!nz((s.title||"")+" "+(s.artist||"")+" "+(s.tags||[]).join(" ")).includes(qn)){const ly=lyr(s),i=nz(ly).indexOf(qn);if(i>=0)snip="…"+ly.slice(Math.max(0,i-18),i+qn.length+28).trim()+"…"}
-  d.innerHTML=`<span><b class="star" title="Favorita">${s.fav?"★":"☆"}</b> ${esc(s.title||"(sem título)")}</span><small>${esc(s.artist||"")}</small>${snip?`<div class="snip">${esc(snip)}</div>`:""}`;
+  d.innerHTML=`<span><b class="star" title="Favorita">${s.fav?"★":"☆"}</b> ${s.follow?"🔗 ":""}${esc(s.title||"(sem título)")}</span><small>${esc(s.artist||"")}</small>${snip?`<div class="snip">${esc(snip)}</div>`:""}`;
   d.querySelector(".star").onclick=e=>{e.stopPropagation();s.fav=!s.fav;s.updated=Date.now();if(s===S)$("fav").checked=!!s.fav;persist();lib()};
   d.onclick=()=>{S=s;LIB.cur=s.id;VIEW="song";fields();all();tab("edit")};
   l.appendChild(d);
@@ -63,7 +63,7 @@ function lib(){
  if(!l.children.length)l.innerHTML='<div class="help" style="margin-top:6px">Nenhuma música encontrada.</div>';
  sets();
 }
-function fields(){["title","artist","key","time","bpm"].forEach(f=>$(f).value=S[f]||"");$("capo").value=S.capo||0;$("capoS").checked=!!S.capoShapes;$("chart").checked=!!S.chart;$("acc").value=S.acc||"";$("tags").value=(S.tags||[]).join(", ");$("fav").checked=!!S.fav;hist();updUndo()}
+function fields(){["title","artist","key","time","bpm"].forEach(f=>$(f).value=S[f]||"");$("capo").value=S.capo||0;$("capoS").checked=!!S.capoShapes;$("chart").checked=!!S.chart;$("acc").value=S.acc||"";$("tags").value=(S.tags||[]).join(", ");$("fav").checked=!!S.fav;{const n=$("fnote");if(n)n.hidden=!S.follow}hist();updUndo()}
 async function out(name,obj){
  const data=JSON.stringify(obj,null,1);
  try{
