@@ -88,6 +88,19 @@ No SQL Editor rode `select tablename, rowsecurity from pg_tables where tablename
 - Faça backup com **Exportar tudo** de vez em quando.
 
 ## Testes
+
+
+
+Extraia este zip POR CIMA da pasta do projeto (substitui os arquivos de mesmo nome).
+Este zip INCLUI e SUBSTITUI o anterior (cifras-correcoes.zip): já tem as correções de bugs.
+
+Arquivos novos:   css/features.css  js/pdf.js  js/versions.js  js/collab.js  js/extras.js  tests/features.test.js  NOVIDADES.md
+Arquivos alterados: index.html sw.js supabase/schema.sql tests/harness.js
+                    js/state.js js/render.js js/sets.js js/stage.js js/share.js js/library.js js/sync.js js/metronome.js
+
+Depois:  1) rode supabase/schema.sql no Supabase   2) deploy   3) node --test tests/*.test.js
+Leia NOVIDADES.md para ver onde está cada funcionalidade.
+
 ```bash
 node --test tests/*.test.js
 ```
