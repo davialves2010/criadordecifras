@@ -35,5 +35,5 @@ $("saddb").onclick=()=>{
  let c=curSet();if(!c){c={id:uid(),name:"Repertório 1",items:[]};LIB.sets.push(c);LIB.curSet=c.id}
  c.items.push({songId:$("sadd").value,shift:0});touchSets();
 };
-$("sview").onclick=()=>{if(!curSet()){msg("Crie um repertório e adicione músicas primeiro.");return}VIEW="set";preview();setM("sheet");$("sheet").scrollIntoView({behavior:"smooth"})};
+$("sview").onclick=()=>{if(!curSet()){msg("Crie um repertório e adicione músicas primeiro.");return}VIEW="set";preview();go("song")};
 $("back").onclick=()=>{VIEW="song";preview()};

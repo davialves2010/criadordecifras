@@ -244,3 +244,41 @@ label{font-size:13px}
 .wbtns{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.wbtns button{flex:1 1 130px;padding:10px}
 .sl{font-size:12px;color:#aaa}
 @media(max-width:860px){.bar button,.tabs button,.vbar button,.vbar select{min-height:40px}}
+
+/* ---- v13: telas (Músicas, Repertórios, Música, Editar) ---- */
+.tabs,#back2,#newtop{display:none!important}
+.mainnav{display:flex;gap:2px}
+.mainnav button{border:0;background:transparent;color:var(--mut);padding:7px 12px;font-weight:600}
+.mainnav button.on{background:var(--bg);color:var(--tx)}
+[data-v=home] .wrap,[data-v=sets] .wrap{display:none}
+[data-v=home] .app,[data-v=sets] .app,[data-v=song] .app{grid-template-columns:minmax(0,1fr)}
+[data-v=home] .editor,[data-v=sets] .editor{max-width:760px;width:100%;margin:0 auto;position:static;max-height:none}
+[data-v=song] .editor{display:none}
+[data-v=song] .wrap{max-width:1000px;margin:0 auto;width:100%}
+[data-v=home] .ttlwrap,[data-v=sets] .ttlwrap{visibility:hidden}
+[data-v=edit] .vbar,[data-v=edit] .songbar{display:none!important}
+body:not([data-v=edit]) #undo,body:not([data-v=edit]) #redo{display:none}
+body:not([data-v=song]):not([data-v=edit]) .pop .pg-song{display:none}
+body:not([data-v=home]) .pop .pg-lib{display:none}
+.pop .pg-song,.pop .pg-lib{display:flex;flex-direction:column}
+.homehd{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.homehd h2{margin:0;font-size:20px}
+#new{padding:11px 18px;font-size:16px}
+.lib #list{max-height:none}
+.lib .it{padding:12px 14px;font-size:16px}
+#q{padding:11px 12px;font-size:16px}
+.songbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 auto 10px;max-width:1123px}
+.songbar .sbsp{flex:1}
+.songbar button{padding:10px 16px;font-size:16px}
+.songbar .pt{display:inline!important}
+body[data-set="1"] #goedit,body[data-set="1"] #gohome,body[data-set="1"] #more2,body:not([data-set="1"]) #goback{display:none}
+.vbar:not(.open) .adv{display:none}
+#moreopt{padding:6px 12px}
+[data-v=song] .vbar .vg:first-child button,[data-v=song] .vbar .vg:first-child select{font-size:16px;padding:8px 14px}
+.editbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.editbar button{padding:10px 18px;font-size:16px}
+details.sub{margin-top:10px}
+.welcome .linkb{color:var(--mut)}
+.chips button{color:var(--tx)}
+@media(max-width:860px){.mainnav{display:none}.vbar{flex-wrap:wrap;overflow-x:visible}body[data-v=edit] .sv{display:inline}}
+@media print{.songbar,.mainnav{display:none!important}}

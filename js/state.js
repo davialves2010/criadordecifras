@@ -19,7 +19,7 @@ try{if(window.claude)claude.use("downloads").then(d=>DL=d).catch(()=>{})}catch(e
 let LKEY="cifras_lib_anon",USER=null,sb=null;
 const persist=()=>{let ok=true;try{localStorage.setItem(LKEY,JSON.stringify(LIB))}catch(e){ok=false}if(typeof schedPush==="function")schedPush();return ok};
 let HID=null,HT=null,MODE="cards";const HIST={};
-const save=()=>{S.updated=Date.now();const ok=persist();lib();HID=S.id;clearTimeout(HT);HT=setTimeout(snap,500);updUndo();const sv=$("sv");sv.textContent=ok?(USER?"☁ Salvando…":"✓ Salvo neste navegador"):"⚠ Não foi possível salvar";sv.className="sv"+(ok?"":" bad");if(!ok&&!window.__sw){window.__sw=1;toast("⚠ O navegador não deixou salvar neste aparelho (armazenamento cheio, bloqueado ou aba privada). Exporte um backup e libere espaço.")}$("dot").className="dot"+(ok?"":" bad")};
+const save=()=>{S.updated=Date.now();const ok=persist();lib();HID=S.id;clearTimeout(HT);HT=setTimeout(snap,500);updUndo();const sv=$("sv");sv.textContent=ok?(USER?"Salvando…":"✓ Salvo neste aparelho"):"⚠ Não foi possível salvar";sv.className="sv"+(ok?"":" bad");if(!ok&&!window.__sw){window.__sw=1;toast("⚠ O navegador não deixou salvar neste aparelho (armazenamento cheio, bloqueado ou aba privada). Exporte um backup e libere espaço.")}$("dot").className="dot"+(ok?"":" bad")};
 let VIEW="song";
 const curSet=()=>LIB.sets.find(x=>x.id===LIB.curSet);
 const songBy=id=>LIB.songs.find(s=>s.id===id);
@@ -57,7 +57,7 @@ function lib(){
   if(qn&&!nz((s.title||"")+" "+(s.artist||"")+" "+(s.tags||[]).join(" ")).includes(qn)){const ly=lyr(s),i=nz(ly).indexOf(qn);if(i>=0)snip="…"+ly.slice(Math.max(0,i-18),i+qn.length+28).trim()+"…"}
   d.innerHTML=`<span><b class="star" title="Favorita">${s.fav?"★":"☆"}</b> ${s.follow?"🔗 ":""}${esc(s.title||"(sem título)")}</span><small>${esc(s.artist||"")}</small>${snip?`<div class="snip">${esc(snip)}</div>`:""}`;
   d.querySelector(".star").onclick=e=>{e.stopPropagation();s.fav=!s.fav;s.updated=Date.now();if(s===S)$("fav").checked=!!s.fav;persist();lib()};
-  d.onclick=()=>{S=s;LIB.cur=s.id;VIEW="song";fields();all();tab("edit")};
+  d.onclick=()=>{S=s;LIB.cur=s.id;VIEW="song";fields();editor();preview();if(MODE==="text")$("ttxt").value=ser(S.sections);persist();go("song")};
   l.appendChild(d);
  });
  if(!l.children.length)l.innerHTML='<div class="help" style="margin-top:6px">Nenhuma música encontrada.</div>';

@@ -1,7 +1,7 @@
 /* js/sync.js — Sincronização com o Supabase (push/pull, conflitos, sessão) */
 /* ---- sincronização ---- */
 function setSync(s,d){
- const T={ok:"☁ Sincronizado",sync:"☁ Sincronizando…",err:"⚠ Erro ao sincronizar"},bad=s==="err";
+ const T={ok:"✓ Tudo salvo",sync:"Salvando…",err:"⚠ Não foi possível salvar na nuvem"},bad=s==="err";
  $("sv").textContent=T[s]||"";$("sv").title=d||"";$("sv").className="sv"+(bad?" bad":"");$("dot").className="dot"+(bad?" bad":"");
 }
 function tomb(kind,id,data){LIB.dels=(LIB.dels||[]).filter(t=>t.id!==id);LIB.dels.push({id,kind,t:Date.now(),data})}
@@ -77,12 +77,13 @@ async function bootUser(user){
  if(!LIB.songs.length)LIB.songs.push({id:uid(),...clone(EX)});
  S=LIB.songs.find(x=>x.id===LIB.cur)||LIB.songs[0];LIB.cur=S.id;VIEW="song";
  try{localStorage.setItem(LKEY,JSON.stringify(LIB))}catch(e){}
- fields();editor();preview();lib();updUndo();setM("edit");
+ fields();editor();preview();lib();updUndo();go("home");
  setAcct(user);
  document.documentElement.classList.remove("locked");
  setSync(SYNCERR?"err":"ok");schedPush();
  try{const p=sessionStorage.getItem("cifras_pending");if(p){sessionStorage.removeItem("cifras_pending");importShare(JSON.parse(p))}}catch(e){}
  try{backupCheck()}catch(e){}
+ try{askTheme()}catch(e){}
  try{followSync()}catch(e){}
 }
 async function startSession(user){if(BOOT||USER)return;BOOT=true;try{await bootUser(user)}catch(e){console.error(e);showForm();aerr("Erro ao carregar suas cifras: "+(e.message||e))}BOOT=false}
