@@ -66,6 +66,7 @@ async function syncNow(manual){
   }
   setSync(SYNCERR?"err":"ok");
   try{await followSync()}catch(e){}
+  try{if(typeof collabAll==="function")await collabAll()}catch(e){}
   if(CONF){msg("Atenção: "+CONF+" item(ns) foi(ram) editado(s) em outro aparelho ao mesmo tempo. Sua versão local foi salva como cópia “conflito”.");CONF=0}else if(manual)msg(SYNCERR?"Não foi possível sincronizar agora.":"Tudo sincronizado.");
  }finally{BUSY=false}
 }

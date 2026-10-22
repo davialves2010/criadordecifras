@@ -1,0 +1,19 @@
+/* css/features.css — estilos das funcionalidades novas (notas do repertório, anotações, versões, equipe) */
+.setnote{font-size:12px;font-weight:700;color:#c0112b;margin:-12px 0 14px}
+.stage .setnote{color:#ffcc4d;font-size:.8em}
+.mynotes{border:1px dashed #999;border-radius:8px;padding:6px 10px;margin:10px 0;font-size:11px;line-height:1.4;color:#333;background:#fffbe6;break-inside:avoid}
+.mynotes b{display:block;font-size:10px;margin-bottom:2px}
+.stage .mynotes{background:#2a2e35;color:#ffe9a0;border-color:#777;font-size:.7em}
+.sit{flex-wrap:wrap}
+.sit .snote{flex:1 1 100%;font-size:13px;padding:5px 8px;margin-top:2px}
+#stot{margin:8px 0 0}
+body[data-set="1"] #gonote,body[data-set="1"] #golink{display:none}
+.songbar #golink,.songbar #gonote,.songbar #pdf{padding:10px 14px;font-size:15px}
+#sbar select#smode,#sbar select#sbpl{width:auto;max-width:150px}
+.crow2{margin:10px 0}
+.crow2 b{display:block}
+.crow2 .row{margin-top:4px}
+.crow2 input{font-size:13px}
+.mbox textarea.plain{font-family:inherit;white-space:pre-wrap;min-height:140px;width:100%}
+.bkmrow a{display:inline-block;padding:7px 11px;border:1px dashed var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600}
+@media print{.mynotes{background:#fff}}

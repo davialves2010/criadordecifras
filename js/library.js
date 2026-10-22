@@ -14,7 +14,7 @@ $("file").onchange=async e=>{
   const arr=(Array.isArray(j.songs)?j.songs:[j]).filter(s=>s&&Array.isArray(s.sections));
   if(!arr.length)throw 0;
   const idm={};arr.forEach(s=>{const id=uid();idm[s.id]=id;LIB.songs.push({title:"",artist:"",key:"",time:"",shift:0,...s,id})});
-  (Array.isArray(j.sets)?j.sets:[]).forEach(x=>LIB.sets.push({id:uid(),name:x.name||"Repertório",items:(x.items||[]).filter(i=>idm[i.songId]).map(i=>({songId:idm[i.songId],shift:i.shift||0}))}));
+  (Array.isArray(j.sets)?j.sets:[]).forEach(x=>LIB.sets.push({id:uid(),name:x.name||"Repertório",items:(x.items||[]).filter(i=>idm[i.songId]).map(i=>{const o={songId:idm[i.songId],shift:i.shift||0};if(i.note)o.note=i.note;return o})}));
   S=LIB.songs[LIB.songs.length-1];LIB.cur=S.id;fields();all();msg(arr.length+" música(s) importada(s).");
  }catch(err){msg("Arquivo inválido. Use um .json exportado por este site.")}
 };

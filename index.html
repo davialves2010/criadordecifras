@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Open+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <title>Montador de Cifras</title>
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/features.css">
 <style id="pgcss"></style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -53,7 +54,7 @@
 
   <section id="t-edit" class="tab">
    <div class="editbar"><button class="p" id="edone">✓ Pronto</button><span class="muted">Tudo é salvo sozinho enquanto você escreve.</span></div>
-   <div class="help" id="fnote" hidden>🔗 Esta música acompanha um repertório ao vivo: quando o dono mudar, ela é atualizada e suas edições aqui são substituídas. Para editar livremente, vá em Repertórios → Parar de seguir.</div>
+   <div class="help" id="fnote" hidden>🔗 Esta música acompanha um repertório ao vivo: quando o dono mudar, ela é atualizada e suas edições aqui são substituídas (suas anotações pessoais 📝 são mantidas). Para editar livremente, vá em Repertórios → Parar de seguir.</div>
    <details open><summary>Dados da música</summary>
     <label>Título</label><input id="title">
     <label>Artista</label><input id="artist">
@@ -62,6 +63,7 @@
      <label>Etiquetas (separe por vírgula)</label><input id="tags" placeholder="ex: adoração, natal">
      <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="fav" style="width:auto"> ⭐ Favorita</label>
      <div class="row"><div><label>Compasso</label><input id="time"></div><div><label>BPM</label><input id="bpm" type="number" min="30" max="300"></div></div>
+     <div class="row"><div><label>Duração (min:seg)</label><input id="dur" placeholder="ex: 4:30" inputmode="numeric"></div><div><label>Link para ouvir (YouTube/Spotify)</label><input id="link" type="url" placeholder="https://…"></div></div>
      <div class="row"><div><label>Capotraste (casa)</label><input id="capo" type="number" min="0" max="11"></div><div style="display:flex;align-items:flex-end"><label style="display:flex;gap:6px;align-items:center;margin:0 0 9px"><input type="checkbox" id="capoS" style="width:auto"> acordes na forma do capo</label></div></div>
      <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="chart" style="width:auto"> Mostrar quadro de acordes na folha</label>
      <label>Acidentes na transposição</label><select id="acc"><option value="">Automático</option><option value="flat">Bemóis (Bb, Eb, Ab)</option><option value="sharp">Sustenidos (A#, D#, G#)</option></select>
@@ -75,6 +77,7 @@
     <div class="sec" id="pbox" style="display:none">
      <label style="margin-top:0">Cole aqui a cifra (acordes numa linha, letra embaixo). Separe as seções com uma linha em branco; títulos como “Refrão:” ou “[Ponte]” nomeiam a seção.</label>
      <textarea id="ptxt" rows="9" placeholder="C            G&#10;Abra os olhos do meu coração"></textarea>
+     <div class="help" id="purlhint" hidden>Isto parece um endereço de site. O Montador não consegue abrir sites sozinho: abra a cifra no site, toque no favorito <b>Cifra → Montador</b> (veja em Configurações → Minhas músicas) e cole o texto copiado aqui.</div>
      <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="prep" style="width:auto"> Substituir as seções atuais</label>
      <div class="bar"><button class="p" id="pgo">Converter e adicionar</button><button id="pcx">Cancelar</button></div>
     </div>
@@ -93,12 +96,12 @@
     <button class="linkb" id="wx">Entendi, não mostrar mais</button>
    </div>
    <div class="homehd"><h2>🎵 Minhas músicas <span class="muted">(<span id="cnt">0</span>)</span></h2><button class="p" id="new">+ Nova música</button></div>
-   <input id="q" placeholder="🔍 Buscar por título, artista ou letra…" aria-label="Buscar música">
+   <input id="q" placeholder="🔍 Título, artista ou letra… (dica: tom:G acorde:Em,C prog:C-G-Am)" aria-label="Buscar música">
    <select id="sortsel" aria-label="Ordenar músicas" style="margin-top:6px"><option value="title">Ordem: A–Z</option><option value="recent">Ordem: mais recentes</option><option value="artist">Ordem: artista</option><option value="key">Ordem: tom</option></select><div class="chips" id="tagbar"></div>
    <div id="list"></div>
    <div class="bar"><span class="menuwrap"><button id="more">⋯ Mais opções</button><div class="pop" id="pop" hidden>
     <div class="pg-song"><small class="ph">Esta música</small>
-     <button id="dup">Duplicar</button><button id="shOne">🔗 Compartilhar por link</button><button id="expOne">⬇ Exportar (arquivo)</button><button id="expCho">⬇ Exportar ChordPro</button>
+     <button id="dup">Duplicar</button><button id="verb">🕘 Versões anteriores</button><button id="shOne">🔗 Compartilhar por link</button><button id="expOne">⬇ Exportar (arquivo)</button><button id="expCho">⬇ Exportar ChordPro</button>
      <hr><button id="del" class="dng">Excluir esta música</button></div>
     <div class="pg-lib"><small class="ph">Minha biblioteca</small>
      <button id="expAll">⬇ Exportar tudo (backup)</button><button id="imp">⬆ Importar arquivo</button><button id="trashb">🗑 Lixeira</button><button id="ex">Adicionar música de exemplo</button></div>
@@ -107,18 +110,19 @@
   </section>
 
   <section id="t-sets" class="tab lib" hidden>
-   <div class="homehd"><h2>📋 Repertórios</h2></div><p class="muted" style="margin:0 0 8px">Um repertório é a lista de músicas de um culto ou ensaio, na ordem em que serão tocadas.</p>
+   <div class="homehd"><h2>📋 Repertórios</h2></div><p class="muted" style="margin:0 0 8px">Um repertório é a lista de músicas de um culto ou ensaio, na ordem em que serão tocadas. Em cada música dá para escrever uma nota (ex.: “entrar no 2º refrão”).</p>
    <label style="margin-top:0">Escolha o repertório</label>
    <select id="setsel"></select>
    <input id="sname" placeholder="Nome do repertório" style="margin-top:6px">
    <div class="bar"><button id="snew">+ Novo repertório</button><button id="sdel">Excluir</button></div>
    <div id="sitems"></div>
+   <div class="muted" id="stot"></div>
    <input id="saq" placeholder="Buscar música para adicionar…" style="margin-top:6px"><div class="row" style="margin-top:6px"><select id="sadd"></select><button style="flex:0 0 auto" id="saddb">+ Adicionar</button></div>
-   <div class="bar"><button class="p" id="sview">👁 Abrir repertório (ver, tocar, imprimir)</button><button id="sshare">🔗 Compartilhar link</button><button id="sunfollow" hidden>🔓 Parar de seguir</button><button id="slive" title="Link que se atualiza sozinho quando você muda o repertório">🔴 Link ao vivo</button><button id="back" style="display:none">← Voltar à música</button></div>
+   <div class="bar"><button class="p" id="sview">👁 Abrir repertório (ver, tocar, imprimir)</button><button id="sshare">🔗 Compartilhar link</button><button id="sunfollow" hidden>🔓 Parar de seguir</button><button id="slive" title="Link que se atualiza sozinho quando você muda o repertório">🔴 Link ao vivo</button><button id="scollab" title="Várias pessoas mantêm o mesmo repertório">👥 Editar em equipe</button><button id="back" style="display:none">← Voltar à música</button></div>
   </section>
  </div>
  <div class="wrap">
-  <div class="songbar" id="songbar"><button id="gohome" class="ib">← Músicas</button><button id="goback" class="ib">← Repertórios</button><span class="sbsp"></span><button id="goedit">✏️ Editar</button><button id="more2" title="Mais ações">⋯ Mais</button></div>
+  <div class="songbar" id="songbar"><button id="gohome" class="ib">← Músicas</button><button id="goback" class="ib">← Repertórios</button><span class="sbsp"></span><button id="pdf" title="Baixa o PDF direto, sem passar pela janela de impressão">📄 Baixar PDF</button><button id="golink" hidden>🎧 Ouvir</button><button id="gonote">📝 Anotações</button><button id="goedit">✏️ Editar</button><button id="more2" title="Mais ações">⋯ Mais</button></div>
   <div class="vbar" id="vbar">
    <div class="vg"><span class="vl" title="O tom em que você vai tocar. Use − e + ou escolha na lista.">Tom</span><button id="dn" title="Meio tom abaixo">−</button><select id="ksel" title="Tom de saída"></select><button id="up" title="Meio tom acima">+</button><small id="shift"></small><button id="rs" title="Voltar ao tom original">↺</button></div>
    <div class="vg"><button id="deg" class="chipb" title="Mostrar números no lugar das letras">Números (1·4·5)</button></div>
@@ -150,7 +154,8 @@
   <h4>Modo palco</h4>
   <section class="ccard">
    <div class="crow"><div><b>Tamanho inicial da letra</b><span class="muted">Valor ao abrir o modo palco</span></div><div class="stepper"><button id="pfm">A−</button><b id="pf-v">18</b><button id="pfp">A+</button></div></div>
-   <div class="crow"><div><b>Velocidade da rolagem</b><span class="muted">Valor inicial da rolagem automática</span></div><input type="range" id="pf-spd" min="1" max="10" style="width:140px"></div>
+   <div class="crow"><div><b>Velocidade da rolagem</b><span class="muted">Valor inicial da rolagem automática manual. No palco também dá para rolar pelo andamento (BPM) ou pela duração da música.</span></div><input type="range" id="pf-spd" min="1" max="10" style="width:140px"></div>
+   <div class="crow"><div><b>Pedal Bluetooth</b><span class="muted">PageDown/PageUp sempre rolam a página. Escolha o que as setas ◀ ▶ (que muitos pedais enviam) fazem.</span></div><select id="pf-pedal" aria-label="Função das setas no palco" style="width:auto"><option value="song">Trocam de música</option><option value="page">Rolam a página</option></select></div>
   </section>
 
   <h4>Minhas músicas</h4>
@@ -161,6 +166,7 @@
    <div class="crow"><div><b>Música aberta</b><span class="muted">Baixa só a música que você está editando.</span></div><button id="m-expo">⬇ Exportar esta</button></div>
    <div class="crow"><div><b>Exportar em ChordPro</b><span class="muted">Baixa a música aberta em .cho, para usar em outros apps.</span></div><button id="m-cho">⬇ ChordPro</button></div>
    <div class="crow"><div><b>Importar arquivo</b><span class="muted">Acrescenta as músicas do arquivo (.json ou ChordPro) à sua biblioteca.</span></div><button id="m-imp">⬆ Importar</button></div>
+   <div class="crow bkmrow"><div><b>Importar de um site de cifras</b><span class="muted">No computador, arraste o botão ao lado para a barra de favoritos. Em um site de cifras, abra a música e clique no favorito: o texto é copiado. Depois use <b>Colar cifra</b> aqui. Use só com conteúdo que você pode usar (direitos autorais).</span></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><a id="bkm" href="#">⭐ Cifra → Montador</a><button id="bkmcopy">Copiar código</button></div></div>
    <div class="crow"><div><b>Links compartilhados</b><span class="muted">Veja, copie ou apague os links que você criou.</span></div><button id="m-links">Gerenciar</button></div>
    <div class="crow"><div><b>Música de exemplo</b><span class="muted">Adiciona “Abra os Olhos do Meu Coração”.</span></div><button id="m-ex">Adicionar</button></div>
   </section>
@@ -183,11 +189,14 @@
  <h3>Atalhos e dicas</h3>
  <ul>
   <li><kbd>Ctrl</kbd>+<kbd>Z</kbd> desfaz e <kbd>Ctrl</kbd>+<kbd>Y</kbd> refaz (fora dos campos de texto).</li>
-  <li><kbd>Esc</kbd> fecha o modo palco.</li>
+  <li><kbd>Esc</kbd> fecha o modo palco. No palco: <kbd>Espaço</kbd> rola/pausa, <kbd>←</kbd>/<kbd>→</kbd> trocam de música e <kbd>PageUp</kbd>/<kbd>PageDown</kbd> (pedal) rolam a página.</li>
   <li>Acorde no meio da letra: <code>[C]Abra os olhos</code>. Nota ao lado do acorde: <code>[C]{segura no C}</code>.</li>
   <li>Prefere o formato clássico? Use <b>✎ Texto</b> na aba Editar.</li>
   <li>O <b>Tom original</b> diz em que tom a cifra foi escrita; o tom de saída você escolhe na barra sobre a folha.</li>
-  <li>Para PDF: <b>Imprimir / PDF</b> e, na janela, “Salvar como PDF”. Desmarque “Cabeçalhos e rodapés”.</li>
+  <li>Busca por acordes: <code>tom:G</code>, <code>acorde:Em,C</code> ou <code>prog:C-G-Am-F</code>, sozinhos ou junto com palavras.</li>
+  <li>Para PDF: <b>📄 Baixar PDF</b> gera o arquivo direto. Também dá para usar <b>Imprimir / PDF</b> e, na janela, “Salvar como PDF” (desmarque “Cabeçalhos e rodapés”).</li>
+  <li><b>📝 Anotações</b> são só suas: não vão em links e continuam quando você segue um repertório ou edita em equipe.</li>
+  <li><b>🕘 Versões anteriores</b> (⋯ Mais) guarda neste aparelho as últimas 15 versões de cada música.</li>
   <li>Suas músicas ficam na sua conta e em cache neste aparelho (funciona offline). Use <b>Exportar tudo</b> para backup e <b>🔗 Compartilhar</b> para enviar por link.</li>
  </ul>
  <button class="p" id="hclose">Fechar</button>
@@ -195,6 +204,9 @@
 <div id="shv" class="shv" hidden><div class="shbar"><button id="shx">✕ Fechar</button><b id="shttl"></b><button class="p" id="shimp">💾 Salvar na minha conta</button></div><div class="sheet" id="shsheet"></div></div>
 <div id="shlinks" class="modal" hidden><div class="mbox"><h3>Links compartilhados</h3><p class="muted">Apagar um link faz ele parar de funcionar para quem o recebeu.</p><div id="shll"></div><button class="p" id="shlc" style="margin-top:12px">Fechar</button></div></div>
 <div id="trashbox" class="modal" hidden><div class="mbox"><h3>Lixeira</h3><div id="trashl"></div><button class="p" id="tclose" style="margin-top:12px">Fechar</button></div></div>
+<div id="verbox" class="modal" hidden><div class="mbox"><h3>Versões anteriores</h3><p class="muted">Cada item é como a música estava antes de uma série de edições. Ficam guardadas só neste aparelho (as últimas 15).</p><div id="verl"></div><button class="p" id="verc" style="margin-top:12px">Fechar</button></div></div>
+<div id="notebox" class="modal" hidden><div class="mbox"><h3>📝 Minhas anotações</h3><p class="muted">Só você vê. Aparecem na folha, no palco e no PDF desta música, mas não vão em links compartilhados e não são apagadas quando o dono do repertório atualiza a música.</p><textarea id="notetxt" class="plain" rows="6" placeholder="Ex.: entrar devagar; capo na 2; repetir a ponte no final"></textarea><div class="bar"><button class="p" id="notesave">Salvar</button><button id="noteclose">Cancelar</button></div></div></div>
+<div id="collabbox" class="modal" hidden><div class="mbox"><h3>👥 Edição em equipe</h3><div id="cbbody"></div><button class="p" id="cbclose" style="margin-top:12px">Fechar</button></div></div>
 <div id="thbox" class="modal" hidden><div class="mbox"><h3>Como prefere ver o site?</h3><p class="muted">Você pode mudar depois em Configurações.</p><div class="wbtns"><button id="th-l">☀️ Claro</button><button id="th-d">🌙 Escuro</button></div><button class="linkb" id="th-a">Usar o do meu aparelho</button></div></div>
 <div id="tip" class="tip"></div>
 <div id="stage" hidden>
@@ -202,7 +214,10 @@
   <button id="sx">✕ Fechar</button><button id="sp">◀</button><span id="sti"></span><button id="sn">▶</button>
   <span class="sl">Tom</span><button id="td">−</button><b id="tv">0</b><button id="tu">+</button>
   <span class="sl">Letra</span><button id="fd">A−</button><button id="fu">A+</button><select id="ssec" title="Ir para a seção" style="width:auto;max-width:150px"></select><button id="sfs" title="Tela cheia">⛶</button>
-  <button id="mt" title="Metrônomo (usa o BPM da música)">♩ Metrônomo</button><button id="mm">−</button><b id="mb" class="mbpm">80</b><button id="mp">+</button><button id="play">▶ Rolar</button><input type="range" id="spd" min="1" max="10" value="3" style="width:90px">
+  <button id="mt" title="Metrônomo (usa o BPM da música)">♩ Metrônomo</button><button id="mm">−</button><b id="mb" class="mbpm">80</b><button id="mp">+</button><button id="play">▶ Rolar</button>
+  <select id="smode" title="Como a rolagem automática anda" aria-label="Modo de rolagem" style="width:auto"><option value="manual">Rolagem manual</option><option value="bpm">Pelo andamento (BPM)</option><option value="dur">Pela duração</option></select>
+  <select id="sbpl" title="Quantos compassos cada linha de letra dura" aria-label="Compassos por linha" style="width:auto" hidden><option value="1">1 compasso/linha</option><option value="2">2 compassos/linha</option><option value="4">4 compassos/linha</option></select>
+  <input type="range" id="spd" min="1" max="10" value="3" style="width:90px">
  </div>
  <div id="stg" class="sheet stage"></div>
 </div>
@@ -233,6 +248,10 @@
 <script src="js/trash.js"></script>
 <script src="js/account.js"></script>
 <script src="js/backup.js"></script>
+<script src="js/pdf.js"></script>
+<script src="js/versions.js"></script>
+<script src="js/collab.js"></script>
+<script src="js/extras.js"></script>
 <script src="js/a11y.js"></script>
 </body>
 </html>

@@ -21,16 +21,19 @@ function line(t,k){if(/^\s*[eBGDAEb]\|[-\dhpbrx\/\\~()|\s]+$/.test(t))return `<d
  const only=!/[a-zA-ZÀ-ú]/.test(t.replace(/\[[^\]]+\]|\{[^}]*\}/g,""));
  return `<div class="ln ${only?"ch":""}">`+segs.map(s=>`<span class="s"><span class="c"${s.r?` data-n="${esc(s.r).replace(/"/g,"&quot;")}"`:""}>${esc(s.c)}${s.n.map(x=>`<span class="nt">${esc(x)}</span>`).join("")}</span><span class="l">${esc(s.t)||" "}</span></span>`).join("")+"</div>";
 }
-function sheetHTML(sg,x=0){
+/* note = anotação do repertório para esta música (ex.: "entrar no 2º refrão") */
+function sheetHTML(sg,x=0,note=""){
  PREFER=sg.acc||null;DEG=sg.degrees?origIdx(sg):null;
  const t=(sg.shift||0)+x,k=t-(sg.capoShapes?(sg.capo||0):0);
  let key=sg.key||"";if(t)key=key?key.replace(/^([A-G][#b]?)/,m=>tn(m,t)):tn((PREFER==="flat"?FL:SH)[origIdx(sg)],t);
- let o=`<h2>${esc(sg.title||"")}</h2><div class="art">${esc(sg.artist||"")}</div><div class="meta">${key?`Tom: <b>${esc(key)}</b>`:""}${sg.time?` | Comp: <b>${esc(sg.time)}</b>`:""}${sg.bpm?` | BPM: <b>${esc(String(sg.bpm))}</b>`:""}${sg.capo?` | Capotraste: <b>${sg.capo}ª casa</b>`:""}${sg.degrees?` | <b>Graus</b>`:""}</div>`;
+ let o=`<h2>${esc(sg.title||"")}</h2><div class="art">${esc(sg.artist||"")}</div><div class="meta">${key?`Tom: <b>${esc(key)}</b>`:""}${sg.time?` | Comp: <b>${esc(sg.time)}</b>`:""}${sg.bpm?` | BPM: <b>${esc(String(sg.bpm))}</b>`:""}${sg.capo?` | Capotraste: <b>${sg.capo}ª casa</b>`:""}${sg.dur?` | Dur: <b>${esc(String(sg.dur))}</b>`:""}${sg.degrees?` | <b>Graus</b>`:""}</div>`;
+ if(note)o+=`<div class="setnote">📌 ${esc(String(note))}</div>`;
  o+=`<div class="body${sg.cols==2?" c2":""}">`+sg.sections.map(s=>`<div class="box"><span class="lb">${esc(s.name)}${s.rep?`<i>${esc(s.rep)}</i>`:""}</span>${s.text.split("\n").map(l=>line(l,k)).join("")}${s.note?`<div class="sn">${esc(s.note)}</div>`:""}</div>`).join("")+`</div>`;
  if(sg.chart){
   const u=[];sg.sections.forEach(s=>(s.text.match(/\[[^\]]+\]/g)||[]).forEach(m=>{const c=tcr(m.slice(1,-1),k);if(!u.includes(c))u.push(c)}));
   o+=`<div class="chart">`+u.map(c=>`<figure><figcaption>${esc(c)}</figcaption>${diag(c)}</figure>`).join("")+`</div>`;
  }
+ if(sg.myNotes&&String(sg.myNotes).trim())o+=`<div class="mynotes"><b>📝 Minhas anotações</b>${esc(String(sg.myNotes)).replace(/\n/g,"<br>")}</div>`;
  return `<div class="song" style="--fz:${(sg.fs||100)/100}">${o}</div>`;
 }
 function preview(){
@@ -41,7 +44,7 @@ function preview(){
  $("pgcss").textContent=`@page{size:A4 ${land?"landscape":"portrait"};margin:${MM}mm}`;
  if(set){
   const its=cs?cs.items:[];
-  sh.innerHTML=its.map(it=>{const sg=songBy(it.songId);return sg?`<div class="pg">${sheetHTML(sg,it.shift||0)}</div>`:""}).join("")||"<p style='color:#888'>Repertório vazio. Adicione músicas no painel ao lado.</p>";
+  sh.innerHTML=its.map(it=>{const sg=songBy(it.songId);return sg?`<div class="pg">${sheetHTML(sg,it.shift||0,it.note||"")}</div>`:""}).join("")||"<p style='color:#888'>Repertório vazio. Adicione músicas no painel ao lado.</p>";
  }else sh.innerHTML=sheetHTML(S);
  $("vbar").style.display=set?"none":"";
  const sv=(((S.shift||0)%12)+12)%12,lab=sv>6?sv-12:sv;$("shift").textContent=lab?(lab>0?"+":"")+lab:"";

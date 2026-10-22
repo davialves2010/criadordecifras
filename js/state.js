@@ -7,6 +7,9 @@ const EX={title:"Abra os Olhos do Meu Coração",artist:"David Quinlan",key:"C m
 const $=id=>document.getElementById(id);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const clone=o=>JSON.parse(JSON.stringify(o));
+/* campos pessoais: ficam só na sua conta (não vão em links, nem são trocados ao seguir/editar em equipe) */
+const PRIV=["fav","myNotes"];
+const stripPriv=o=>{const c=clone(o);PRIV.forEach(k=>delete c[k]);return c};
 let LIB=null,S;
 try{LIB=JSON.parse(localStorage.getItem("cifras_lib")||"null")}catch(e){}
 if(!LIB||!LIB.songs||!LIB.songs.length){
@@ -29,7 +32,44 @@ function toast(t){const e=$("toast");if(!e)return;if(!t){e.hidden=true;return}e.
 const msg=t=>{const m=$("msg");m.textContent=t;m.style.display=t?"block":"none";toast(t)};
 const nz=x=>(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const lyr=s=>(s.sections||[]).map(x=>(x.text||"").replace(/\[[^\]]+\]|\{[^}]*\}/g," ").replace(/\s+/g," ")).join(" / ");
-function matchSong(s,q){q=nz(q).trim();if(!q)return true;return nz([s.title,s.artist,(s.tags||[]).join(" "),lyr(s)].join(" ")).includes(q)}
+
+/* ---- duração ("4:30" ou só minutos) ---- */
+function parseDur(v){v=String(v==null?"":v).trim();if(!v)return 0;let m=v.match(/^(\d+)\s*:\s*(\d{1,2})$/);if(m)return +m[1]*60+Math.min(59,+m[2]);m=v.match(/^(\d+)\s*(?:min|m)?$/i);return m?+m[1]*60:0}
+const fmtDur=s=>{s=Math.round(s||0);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?h+":"+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0"):m+":"+String(x).padStart(2,"0")};
+
+/* ---- busca por acordes: "tom:G", "acorde:Em,C", "prog:C-G-Am-F" (podem ser misturados com texto) ---- */
+const chBase=c=>String(c).split("/")[0].trim();
+function songChords(s){const o=[];(s.sections||[]).forEach(x=>((x.text||"").match(/\[[^\]]+\]/g)||[]).forEach(m=>{const c=chBase(m.slice(1,-1));if(c)o.push(c)}));return o}
+function keyParts(k){const m=String(k||"").match(/^\s*([A-G][#b]?)(.*)$/);if(!m)return null;return{r:m[1],m:/^(m(?!aj)|\s*(min|menor))/i.test(m[2])}}
+function parseQ(q){
+ const o={txt:[],key:null,has:[],prog:null};
+ String(q||"").trim().split(/\s+/).filter(Boolean).forEach(t=>{
+  const m=t.match(/^(tom|key|acordes?|chords?|prog|progressao|progressão):(.*)$/i);
+  if(!m){o.txt.push(t);return}
+  const k=m[1].toLowerCase(),v=m[2].trim();
+  if(!v)return;
+  if(k==="tom"||k==="key"){const kp=keyParts(v);if(kp)o.key=kp}
+  else if(/^acorde|^chord/.test(k)){v.split(",").map(chBase).filter(Boolean).forEach(c=>o.has.push(c))}
+  else{const p=v.split(/[-–>→]+/).map(chBase).filter(Boolean);if(p.length)o.prog=p}
+ });
+ return o;
+}
+function hasProg(cs,p){
+ const d=cs.filter((c,i)=>c!==cs[i-1]);
+ for(let i=0;i+p.length<=d.length;i++){if(p.every((c,j)=>d[i+j]===c))return true}
+ return false;
+}
+function matchSong(s,q){
+ const p=parseQ(q);
+ if(p.key){const k=keyParts(s.key);if(!k||IDX[k.r]!==IDX[p.key.r]||k.m!==p.key.m)return false}
+ if(p.has.length||p.prog){
+  const cs=songChords(s);
+  if(!p.has.every(c=>cs.includes(c)))return false;
+  if(p.prog&&!hasProg(cs,p.prog))return false;
+ }
+ const t=nz(p.txt.join(" ")).trim();if(!t)return true;
+ return nz([s.title,s.artist,(s.tags||[]).join(" "),lyr(s)].join(" ")).includes(t);
+}
 let FILT={fav:false,tag:"",sort:"title"};
 const keyRoot=s=>{const m=(s.key||"").match(/^\s*([A-G][#b]?)/);return m?IDX[m[1]]:99};
 const cmpSong=(a,b)=>{
@@ -40,7 +80,7 @@ const cmpSong=(a,b)=>{
  return t;
 };
 function lib(){
- const q=$("q").value,qn=nz(q).trim();
+ const q=$("q").value,qn=nz(parseQ(q).txt.join(" ")).trim();
  $("cnt").textContent=LIB.songs.length;
  const tags=[...new Set(LIB.songs.flatMap(s=>s.tags||[]))].sort((a,b)=>a.localeCompare(b,"pt"));
  if(FILT.tag&&!tags.includes(FILT.tag))FILT.tag="";
@@ -63,7 +103,7 @@ function lib(){
  if(!l.children.length)l.innerHTML='<div class="help" style="margin-top:6px">Nenhuma música encontrada.</div>';
  sets();
 }
-function fields(){["title","artist","key","time","bpm"].forEach(f=>$(f).value=S[f]||"");$("capo").value=S.capo||0;$("capoS").checked=!!S.capoShapes;$("chart").checked=!!S.chart;$("acc").value=S.acc||"";$("tags").value=(S.tags||[]).join(", ");$("fav").checked=!!S.fav;{const n=$("fnote");if(n)n.hidden=!S.follow}hist();updUndo()}
+function fields(){["title","artist","key","time","bpm"].forEach(f=>$(f).value=S[f]||"");$("capo").value=S.capo||0;$("capoS").checked=!!S.capoShapes;$("chart").checked=!!S.chart;$("acc").value=S.acc||"";$("tags").value=(S.tags||[]).join(", ");$("fav").checked=!!S.fav;$("dur").value=S.dur||"";$("link").value=S.link||"";{const n=$("fnote");if(n)n.hidden=!S.follow}if(typeof onFields==="function")onFields();hist();updUndo()}
 async function out(name,obj){
  const data=JSON.stringify(obj,null,1);
  try{

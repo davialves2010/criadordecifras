@@ -16,14 +16,17 @@ async function mkShare(kind,data){
  if(error){msg("Não foi possível criar o link: "+error.message);return}
  shareOut(r.id);
 }
-const setPayload=c=>{const ids=[...new Set(c.items.map(i=>i.songId))];return{songs:ids.map(songBy).filter(Boolean).map(clone),set:clone(c)}};
-$("shOne").onclick=()=>mkShare("song",{songs:[clone(S)]});
+/* o que vai num link nunca leva dados pessoais (favorita, anotações) nem o token de edição em equipe */
+const pubSet=c=>{const o=clone(c);["collab","follow","followSig"].forEach(k=>delete o[k]);return o};
+const setPayload=c=>{const ids=[...new Set(c.items.map(i=>i.songId))];return{songs:ids.map(songBy).filter(Boolean).map(stripPriv),set:pubSet(c)}};
+const mapItem=(i,idm)=>{const o={songId:idm[i.songId],shift:i.shift||0};if(i.note)o.note=i.note;return o};
+$("shOne").onclick=()=>mkShare("song",{songs:[stripPriv(S)]});
 $("sshare").onclick=()=>{const c=curSet();if(!c){msg("Crie um repertório primeiro.");return}mkShare("set",setPayload(c))};
 let SHD=null;
 const shClose=()=>{$("shv").hidden=true;try{history.replaceState(null,"",location.pathname)}catch(e){}};
 function showShare(d,id){SHID=id||null;
  SHD=d;const set=d.set,its=set?set.items:d.songs.map(x=>({songId:x.id,shift:0})),sh=$("shsheet");
- sh.innerHTML=its.map(it=>{const sg=d.songs.find(x=>x.id===it.songId);return sg?`<div class="pg">${sheetHTML(sg,it.shift||0)}</div>`:""}).join("");
+ sh.innerHTML=its.map(it=>{const sg=d.songs.find(x=>x.id===it.songId);return sg?`<div class="pg">${sheetHTML(sg,it.shift||0,it.note||"")}</div>`:""}).join("");
  sh.style.setProperty("--z",Math.min(1,(innerWidth-24)/794));
  $("shttl").textContent=set?"Repertório: "+set.name+(d.live?" · 🔴 ao vivo":""):(d.songs[0]&&d.songs[0].title)||"Cifra";$("shimp").textContent=d.live&&d.set?"🔗 Seguir repertório":"💾 Salvar na minha conta";$("shv").hidden=false;
 }
@@ -31,11 +34,11 @@ function importShare(d){
  const{_sid,...pl}=d,fid=pl.live&&pl.set?(_sid||SHID):null;
  if(fid&&LIB.sets.some(x=>x.follow===fid)){shClose();toast("Você já segue este repertório.");followSync();return}
  /* aviso antes de seguir: edições locais são substituídas e músicas removidas pelo dono vão para a lixeira */
- if(fid&&!confirm("Ao seguir, este repertório e suas músicas serão atualizados sozinhos pelo dono. Suas edições nessas músicas serão substituídas e músicas que o dono remover irão para a lixeira.\n\nSeguir?"))return;
+ if(fid&&!confirm("Ao seguir, este repertório e suas músicas serão atualizados sozinhos pelo dono. Suas edições nessas músicas serão substituídas e músicas que o dono remover irão para a lixeira. Suas anotações pessoais (📝) são mantidas.\n\nSeguir?"))return;
  const idm={};
  d.songs.forEach(x=>{const id=uid();idm[x.id]=id;const o={...x,id,updated:Date.now()};if(fid){o.follow=fid;o.srcId=x.id}LIB.songs.push(o)});
  if(d.set){
-  const st={id:uid(),name:d.set.name,updated:Date.now(),items:d.set.items.filter(i=>idm[i.songId]).map(i=>({songId:idm[i.songId],shift:i.shift||0}))};
+  const st={id:uid(),name:d.set.name,updated:Date.now(),items:d.set.items.filter(i=>idm[i.songId]).map(i=>mapItem(i,idm))};
   if(fid){st.follow=fid;st.followSig=sig(pl);LIB.curSet=st.id}
   LIB.sets.push(st);
  }
@@ -78,7 +81,7 @@ async function mkLive(){
  LIVE=null;LASTLIVE[r.id]=sig(p);shareOut(r.id);
 }
 $("slive").onclick=mkLive;
-function schedLive(){if(!USER||!sb)return;clearTimeout(LT);LT=setTimeout(liveSync,4000)}
+function schedLive(){if(!USER||!sb)return;clearTimeout(LT);LT=setTimeout(()=>{liveSync();if(typeof collabAll==="function")collabAll()},4000)}
 async function liveSync(){
  if(!USER||!sb)return;
  try{
@@ -115,12 +118,17 @@ async function followSync(){
    const mine=LIB.songs.filter(s=>s.follow===st.follow),keep=new Set(),idm={};
    d.songs.forEach(x=>{
     let l=mine.find(s=>s.srcId===x.id);
-    if(l){const keepId=l.id;Object.keys(l).forEach(k=>delete l[k]);Object.assign(l,clone(x),{id:keepId})}
+    if(l){
+     /* guarda a versão anterior (pode ter edições suas) e mantém os dados pessoais */
+     if(typeof verPush==="function")try{verPush(l.id,snapStr(l),Date.now())}catch(e){}
+     const keepId=l.id,pv={};PRIV.forEach(k=>{if(l[k]!==undefined)pv[k]=l[k]});
+     Object.keys(l).forEach(k=>delete l[k]);Object.assign(l,clone(x),pv,{id:keepId});
+    }
     else{l={...clone(x),id:uid()};LIB.songs.push(l)}
     l.follow=st.follow;l.srcId=x.id;l.updated=Date.now();idm[x.id]=l.id;keep.add(l.id);
    });
    mine.filter(s=>!keep.has(s.id)).forEach(s=>{tomb("song",s.id,clone(s));LIB.songs=LIB.songs.filter(y=>y!==s)});
-   if(d.set){st.name=d.set.name;st.items=(d.set.items||[]).filter(i=>idm[i.songId]).map(i=>({songId:idm[i.songId],shift:i.shift||0}))}
+   if(d.set){st.name=d.set.name;st.items=(d.set.items||[]).filter(i=>idm[i.songId]).map(i=>mapItem(i,idm))}
    st.followSig=g;st.updated=Date.now();ch=true;
   }
  }catch(e){}finally{FOLLOWING=false}
