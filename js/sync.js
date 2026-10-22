@@ -36,7 +36,16 @@ async function pull(){
   if(t){if(!r.deleted&&r.updated>t.t)tb.delete(r.id);else return}
   const list=r.kind==="set"?LIB.sets:LIB.songs,i=list.findIndex(x=>x.id===r.id),lu=i>=0?(list[i].updated||0):-1;
   if(r.deleted){const gone=i<0||lu<=r.updated;if(i>=0&&gone){list.splice(i,1);changed=true}if(gone){const o=r.data;LIB.trash=LIB.trash||[];if(o&&o.id&&!LIB.trash.some(x=>x.item&&x.item.id===o.id)){LIB.trash.push({kind:r.kind==="set"?"set":"song",item:o,t:r.updated});changed=true}}LIB.synced[r.id]=r.updated;return}
-  if(i<0||lu<r.updated){if(i>=0&&r.kind!=="set"&&lu>(LIB.synced[r.id]||0)){const c=clone(list[i]);c.id=uid();c.title=(c.title||"")+" (versão local – conflito)";c.updated=Date.now();list.push(c);CONF++}const o=r.data||{};o.id=r.id;o.updated=r.updated;if(i>=0)list[i]=o;else list.push(o);LIB.trash=(LIB.trash||[]).filter(x=>!x.item||x.item.id!==r.id);LIB.synced[r.id]=r.updated;changed=true}
+  if(i<0||lu<r.updated){
+   /* conflito: o item local foi editado depois da última sincronização. Vale para músicas e repertórios
+      (repertório seguido é ignorado: o followSync reescreve ele sozinho) */
+   if(i>=0&&!list[i].follow&&lu>(LIB.synced[r.id]||0)){
+    const c=clone(list[i]);c.id=uid();c.updated=Date.now();
+    if(r.kind==="set")c.name=(c.name||"")+" (versão local – conflito)";
+    else c.title=(c.title||"")+" (versão local – conflito)";
+    list.push(c);CONF++;
+   }
+   const o=r.data||{};o.id=r.id;o.updated=r.updated;if(i>=0)list[i]=o;else list.push(o);LIB.trash=(LIB.trash||[]).filter(x=>!x.item||x.item.id!==r.id);LIB.synced[r.id]=r.updated;changed=true}
   else if(lu===r.updated)LIB.synced[r.id]=r.updated;
  });
  LIB.dels=[...tb.values()];SYNCERR=null;
@@ -51,11 +60,13 @@ async function syncNow(manual){
    if(!LIB.songs.length)LIB.songs.push(blankSong());
    S=LIB.songs.find(x=>x.id===S.id)||LIB.songs[0];LIB.cur=S.id;
    try{localStorage.setItem(LKEY,JSON.stringify(LIB))}catch(e){}
+   /* o histórico de desfazer era de antes da sincronização: descarta para não reverter edições de outro aparelho */
+   clearTimeout(HT);HT=null;Object.keys(HIST).forEach(k=>delete HIST[k]);
    fields();editor();preview();lib();if(MODE==="text")$("ttxt").value=ser(S.sections);
   }
   setSync(SYNCERR?"err":"ok");
   try{await followSync()}catch(e){}
-  if(CONF){msg("Atenção: "+CONF+" música(s) foi(ram) editada(s) em outro aparelho ao mesmo tempo. Sua versão local foi salva como cópia “conflito”.");CONF=0}else if(manual)msg(SYNCERR?"Não foi possível sincronizar agora.":"Tudo sincronizado.");
+  if(CONF){msg("Atenção: "+CONF+" item(ns) foi(ram) editado(s) em outro aparelho ao mesmo tempo. Sua versão local foi salva como cópia “conflito”.");CONF=0}else if(manual)msg(SYNCERR?"Não foi possível sincronizar agora.":"Tudo sincronizado.");
  }finally{BUSY=false}
 }
 function setAcct(u){

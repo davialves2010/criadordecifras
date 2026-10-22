@@ -30,6 +30,8 @@ function showShare(d,id){SHID=id||null;
 function importShare(d){
  const{_sid,...pl}=d,fid=pl.live&&pl.set?(_sid||SHID):null;
  if(fid&&LIB.sets.some(x=>x.follow===fid)){shClose();toast("Você já segue este repertório.");followSync();return}
+ /* aviso antes de seguir: edições locais são substituídas e músicas removidas pelo dono vão para a lixeira */
+ if(fid&&!confirm("Ao seguir, este repertório e suas músicas serão atualizados sozinhos pelo dono. Suas edições nessas músicas serão substituídas e músicas que o dono remover irão para a lixeira.\n\nSeguir?"))return;
  const idm={};
  d.songs.forEach(x=>{const id=uid();idm[x.id]=id;const o={...x,id,updated:Date.now()};if(fid){o.follow=fid;o.srcId=x.id}LIB.songs.push(o)});
  if(d.set){
@@ -125,7 +127,10 @@ async function followSync(){
  if(ch){
   if(!LIB.songs.length)LIB.songs.push(blankSong());
   if(!songBy(S.id))S=LIB.songs[0];
-  LIB.cur=S.id;persist();fields();editor();preview();lib();
+  LIB.cur=S.id;persist();
+  /* as músicas seguidas foram reescritas: o histórico de desfazer antigo não vale mais */
+  clearTimeout(HT);HT=null;Object.keys(HIST).forEach(k=>delete HIST[k]);
+  fields();editor();preview();lib();
   if(MODE==="text")$("ttxt").value=ser(S.sections);
   toast("Um repertório que você segue foi atualizado.");
  }

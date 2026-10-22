@@ -21,8 +21,10 @@ $("sx").onclick=closeStage;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("stage").hidden)closeStage()});
 $("sp").onclick=()=>{if(SX>0){SX--;SS=0;stageRender()}};
 $("sn").onclick=()=>{if(SX<SI.length-1){SX++;SS=0;stageRender()}};
-$("tu").onclick=()=>{SS=(SS+1)%12;stageRender()};
-$("td").onclick=()=>{SS=(SS-1)%12;stageRender()};
+/* transposição no palco fica entre −6 e +5 (o rótulo mostra "−1", não "+11") */
+const normS=n=>((n%12+18)%12)-6;
+$("tu").onclick=()=>{SS=normS(SS+1);stageRender()};
+$("td").onclick=()=>{SS=normS(SS-1);stageRender()};
 $("fu").onclick=()=>{FS=Math.min(48,FS+2);stageRender()};
 $("fd").onclick=()=>{FS=Math.max(10,FS-2);stageRender()};
 $("play").onclick=()=>play(!PLAY);
