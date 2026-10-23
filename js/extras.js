@@ -36,5 +36,24 @@ const BKM="javascript:(function(){var s=(getSelection()+'').trim();if(!s){var p=
 $("bkm").href=BKM;
 $("bkm").onclick=e=>{e.preventDefault();toast("Arraste este botão para a barra de favoritos do navegador.")};
 $("bkmcopy").onclick=async()=>{try{await navigator.clipboard.writeText(BKM);toast("Código copiado. Crie um favorito e cole no campo do endereço.")}catch(e){prompt("Copie o código:",BKM)}};
-/* se a pessoa colar um endereço (URL) em vez do texto da cifra */
-$("ptxt").addEventListener("input",()=>{$("purlhint").hidden=!/^\s*https?:\/\/\S+\s*$/.test($("ptxt").value)});
+/* ---- importar pelo link da cifra: a busca é feita pela função /api/importar (só na Vercel) ---- */
+async function importUrl(u){
+ u=String(u||"").trim();
+ if(!/^https?:\/\/\S+$/i.test(u)){msg("Cole o endereço completo da cifra (começando com https://).");return}
+ if(!USER||!sb){msg("Entre na sua conta para importar de um link.");return}
+ const bt=$("purlgo");bt.disabled=true;msg("Buscando a cifra…");
+ try{
+  const{data:ss}=await sb.auth.getSession(),tok=ss&&ss.session?ss.session.access_token:"";
+  const r=await fetch("/api/importar",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+tok},body:JSON.stringify({url:u})});
+  let j={};try{j=await r.json()}catch(e){}
+  if(!r.ok||!j.text){msg(j.error||"A importação por link não está disponível aqui (ela só funciona no site publicado na Vercel). Copie o texto da cifra no site e cole aqui.");return}
+  $("ptxt").value=(j.title?j.title+"\n"+(j.artist||"")+"\n\n":"")+j.text;$("purl").value="";
+  $("pbox").style.display="block";
+  msg("Cifra encontrada. Confira o texto e toque em “Converter e adicionar”.");
+ }catch(e){msg("Não consegui falar com o servidor. Verifique a internet ou copie e cole o texto da cifra.")}
+ finally{bt.disabled=false}
+}
+$("purlgo").onclick=()=>importUrl($("purl").value);
+$("purl").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();importUrl($("purl").value)}});
+/* se a pessoa colar o endereço direto no campo grande, importa na hora */
+$("ptxt").addEventListener("input",()=>{const v=$("ptxt").value.trim();if(/^https?:\/\/\S+$/i.test(v)){$("ptxt").value="";$("purl").value=v;importUrl(v)}});

@@ -10,7 +10,7 @@ function loadPdfLib(){
   document.head.appendChild(s);
  }));
 }
-const PT=0.3528,RED=[192,17,43],BPX=3.2,BPT=4.4,BPB=2.2,BGAP=3.6;
+const PDF_PT=0.3528,PDF_RED=[192,17,43],PDF_BPX=3.2,PDF_BPT=4.4,PDF_BPB=2.2,PDF_BGAP=3.6;
 /* as fontes padrão do PDF só têm Latin-1: troca o que dá e remove o resto */
 const pL=s=>String(s==null?"":s).replace(/\t/g,"    ").replace(/[–—]/g,"-").replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/…/g,"...").replace(/♯/g,"#").replace(/♭/g,"b").replace(/[^\x20-\x7E\u00A0-\u00FF]/g,"");
 function pdfSegs(t,k){
@@ -41,11 +41,11 @@ function pdfChunks(txt,maxW,mw){
 /* transforma uma linha da cifra em "linhas visuais" {h, draw(x,y)} */
 function lineRows(doc,t,k,avail,fz){
  t=String(t||"").replace(/\t/g,"    ");
- const cfs=9*fz,lfs=8.25*fz,nfs=6*fz,hc=cfs*PT*1.25,hl=lfs*PT*1.3,gap=.5;
+ const cfs=9*fz,lfs=8.25*fz,nfs=6*fz,hc=cfs*PDF_PT*1.25,hl=lfs*PDF_PT*1.3,gap=.5;
  if(!t.trim())return[{h:hl*.8,draw(){}}];
  if(/^\s*[eBGDAEb]\|[-\dhpbrx\/\\~()|\s]+$/.test(t)){
   const fs=7*fz;
-  return[{h:fs*PT*1.25+gap,draw:(x,y)=>{doc.setFont("courier","normal");doc.setFontSize(fs);doc.setTextColor(51);doc.text(pL(t),x,y+fs*PT*.85)}}];
+  return[{h:fs*PDF_PT*1.25+gap,draw:(x,y)=>{doc.setFont("courier","normal");doc.setFontSize(fs);doc.setTextColor(51);doc.text(pL(t),x,y+fs*PDF_PT*.85)}}];
  }
  /* o getTextWidth do jsPDF ignora espaços no fim do texto: soma de volta */
  const mw=(s,f,z)=>{doc.setFont("helvetica",f);doc.setFontSize(z);const t=pL(s),sp=doc.getTextWidth("a a")-doc.getTextWidth("aa");return doc.getTextWidth(t)+sp*((t.match(/\s+$/)||[""])[0].length)};
@@ -62,7 +62,7 @@ function lineRows(doc,t,k,avail,fz){
   toks.forEach(o=>{if(x+o.w>avail&&cur.length){ls.push(cur);cur=[];x=0}cur.push(o);x+=o.w});
   if(cur.length)ls.push(cur);
   return ls.map((ln,i)=>({h:hc+(i===ls.length-1?gap:0),draw:(X,Y)=>{
-   let x=X;ln.forEach(o=>{doc.setFont("helvetica",o.f);doc.setFontSize(o.z);doc.setTextColor(...RED);doc.text(pL(o.s),x+(o.sp||0),Y+cfs*PT*.85);x+=o.w});
+   let x=X;ln.forEach(o=>{doc.setFont("helvetica",o.f);doc.setFontSize(o.z);doc.setTextColor(...PDF_RED);doc.text(pL(o.s),x+(o.sp||0),Y+cfs*PDF_PT*.85);x+=o.w});
   }}));
  }
  const hasC=segs.some(s=>s.c),pcs=[];
@@ -78,17 +78,17 @@ function lineRows(doc,t,k,avail,fz){
  return vr.map((r,i)=>({h:(hasC?hc:0)+hl+(i===vr.length-1?gap:0),draw:(X,Y)=>{
   r.forEach(p=>{
    if(p.c){
-    doc.setFont("helvetica","bold");doc.setFontSize(cfs);doc.setTextColor(...RED);doc.text(pL(p.c),X+p.x,Y+cfs*PT*.85);
+    doc.setFont("helvetica","bold");doc.setFontSize(cfs);doc.setTextColor(...PDF_RED);doc.text(pL(p.c),X+p.x,Y+cfs*PDF_PT*.85);
     let nx=X+p.x+mw(p.c,"bold",cfs);
-    p.n.forEach(n=>{nx+=.8;doc.setFont("helvetica","bold");doc.setFontSize(nfs);doc.setTextColor(34);doc.text(pL(n),nx,Y+cfs*PT*.85);nx+=mw(n,"bold",nfs)});
+    p.n.forEach(n=>{nx+=.8;doc.setFont("helvetica","bold");doc.setFontSize(nfs);doc.setTextColor(34);doc.text(pL(n),nx,Y+cfs*PDF_PT*.85);nx+=mw(n,"bold",nfs)});
    }
-   if(p.t.trim()){doc.setFont("helvetica","normal");doc.setFontSize(lfs);doc.setTextColor(85);doc.text(pL(p.t),X+p.x,Y+(hasC?hc:0)+lfs*PT*.85)}
+   if(p.t.trim()){doc.setFont("helvetica","normal");doc.setFontSize(lfs);doc.setTextColor(85);doc.text(pL(p.t),X+p.x,Y+(hasC?hc:0)+lfs*PDF_PT*.85)}
   });
  }}));
 }
 function noteRows(doc,txt,avail,fz){
  const fs=7.5*fz;doc.setFont("helvetica","italic");doc.setFontSize(fs);
- return doc.splitTextToSize(pL(txt),avail).map((l,i,a)=>({h:fs*PT*1.3+(i===a.length-1?.5:0),draw:(x,y)=>{doc.setFont("helvetica","italic");doc.setFontSize(fs);doc.setTextColor(102);doc.text(l,x,y+fs*PT*.9)}}));
+ return doc.splitTextToSize(pL(txt),avail).map((l,i,a)=>({h:fs*PDF_PT*1.3+(i===a.length-1?.5:0),draw:(x,y)=>{doc.setFont("helvetica","italic");doc.setFontSize(fs);doc.setTextColor(102);doc.text(l,x,y+fs*PDF_PT*.9)}}));
 }
 /* ---- posicionamento: colunas, páginas e caixas ---- */
 const pX=P=>P.M+P.col*(P.colW+P.gap);
@@ -97,7 +97,7 @@ function pNewCol(P){
  else{P.doc.addPage();P.col=0;P.pt=P.M;P.y=P.M}
 }
 function pDrawBox(P,b,rows,first){
- const doc=P.doc,x=pX(P),y=P.y,h=rows.reduce((a,r)=>a+r.h,0),bh=h+BPT+BPB;
+ const doc=P.doc,x=pX(P),y=P.y,h=rows.reduce((a,r)=>a+r.h,0),bh=h+PDF_BPT+PDF_BPB;
  doc.setDrawColor(34);doc.setLineWidth(.3);doc.roundedRect(x,y,P.colW,bh,2,2,"S");
  if(first&&b.label){
   doc.setFont("helvetica","bold");doc.setFontSize(6.5);
@@ -105,17 +105,17 @@ function pDrawBox(P,b,rows,first){
   let rw=0,rep="";if(b.rep){rep=" "+pL(b.rep);doc.setFont("helvetica","italic");rw=doc.getTextWidth(rep)}
   doc.setFillColor(255,255,255);doc.rect(x+3,y-1.3,lw+rw+1.8,2.6,"F");
   doc.setFont("helvetica","bold");doc.setFontSize(6.5);doc.setTextColor(34);doc.text(lab,x+3.9,y+.75);
-  if(rep){doc.setFont("helvetica","italic");doc.setTextColor(...RED);doc.text(rep,x+3.9+lw,y+.75)}
+  if(rep){doc.setFont("helvetica","italic");doc.setTextColor(...PDF_RED);doc.text(rep,x+3.9+lw,y+.75)}
  }
- let yy=y+BPT;rows.forEach(r=>{r.draw(x+BPX,yy);yy+=r.h});
- P.y+=bh+BGAP;
+ let yy=y+PDF_BPT;rows.forEach(r=>{r.draw(x+PDF_BPX,yy);yy+=r.h});
+ P.y+=bh+PDF_BGAP;
 }
 function pPlaceBox(P,b){
  const rows=b.rows.slice();let first=true;
  for(let guard=0;rows.length&&guard<200;guard++){
-  const avail=P.bottom-P.y-BPT-BPB;
+  const avail=P.bottom-P.y-PDF_BPT-PDF_BPB;
   let take=0,h=0;while(take<rows.length&&h+rows[take].h<=avail){h+=rows[take].h;take++}
-  const total=rows.reduce((a,r)=>a+r.h,0),colFull=P.bottom-P.pt-BPT-BPB;
+  const total=rows.reduce((a,r)=>a+r.h,0),colFull=P.bottom-P.pt-PDF_BPT-PDF_BPB;
   if(take===rows.length){pDrawBox(P,b,rows,first);return}
   if(first&&total<=colFull&&P.y>P.pt+.1){pNewCol(P);continue}
   if(take===0){if(P.y>P.pt+.1){pNewCol(P);continue}take=1}
@@ -149,9 +149,9 @@ function pdfSong(doc,it,W,H,M){
  if(sg.artist){doc.setFont("helvetica","normal");doc.setFontSize(8.5);doc.setTextColor(136);doc.text(pL(sg.artist),M,y+3);y+=4.4}
  const meta=[info.key?"Tom: "+info.key:"",sg.time?"Comp: "+sg.time:"",sg.bpm?"BPM: "+sg.bpm:"",sg.capo?"Capotraste: "+sg.capo+"a casa":"",sg.dur?"Dur: "+sg.dur:"",sg.degrees?"Graus":""].filter(Boolean).join("  |  ");
  if(meta){doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(34);doc.text(pL(meta),M,y+3.6);y+=6}
- if(it.note){doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...RED);doc.splitTextToSize(pL("Nota: "+it.note),W-2*M).forEach(l=>{doc.text(l,M,y+3.4);y+=4.6});y+=1}
+ if(it.note){doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...PDF_RED);doc.splitTextToSize(pL("Nota: "+it.note),W-2*M).forEach(l=>{doc.text(l,M,y+3.4);y+=4.6});y+=1}
  y+=3;P.y=y;P.pt=y;
- const avail=colW-2*BPX;
+ const avail=colW-2*PDF_BPX;
  sg.sections.forEach(s=>{
   const rows=[];
   (s.text||"").split("\n").forEach(l=>rows.push(...lineRows(doc,l,info.k,avail,fz)));
@@ -165,14 +165,14 @@ function pdfSong(doc,it,W,H,M){
   u.forEach(c=>{
    if(fx+fw>colW){fx=0;P.y+=fh}
    if(P.y+fh>P.bottom){pNewCol(P);fx=0}
-   doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(...RED);doc.text(pL(c),pX(P)+fx+2,P.y+3);
+   doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(...PDF_RED);doc.text(pL(c),pX(P)+fx+2,P.y+3);
    pDiag(doc,c,pX(P)+fx,P.y+3.6,sc);fx+=fw;
   });
   P.y+=fh;
  }
  if(sg.myNotes&&String(sg.myNotes).trim()){
   const rows=[];doc.setFont("helvetica","normal");doc.setFontSize(8);
-  doc.splitTextToSize(pL(sg.myNotes),avail).forEach(l=>rows.push({h:8*PT*1.3,draw:(x,yy)=>{doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(51);doc.text(l,x,yy+8*PT*.9)}}));
+  doc.splitTextToSize(pL(sg.myNotes),avail).forEach(l=>rows.push({h:8*PDF_PT*1.3,draw:(x,yy)=>{doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(51);doc.text(l,x,yy+8*PDF_PT*.9)}}));
   pPlaceBox(P,{label:"Minhas anotações",rep:"",rows});
  }
 }
@@ -188,9 +188,12 @@ async function exportPdf(){
  const items=set?cs.items.map(i=>({sg:songBy(i.songId),x:i.shift||0,note:i.note||""})).filter(i=>i.sg):[{sg:S,x:0,note:""}];
  if(!items.length){msg("Nada para exportar.");return}
  msg("Gerando PDF…");
+ let J;
+ try{J=await loadPdfLib()}
+ catch(e){msg("Não consegui baixar a biblioteca de PDF (precisa de internet na primeira vez; um bloqueador de anúncios também pode impedir). Use “Imprimir / PDF”.");return}
  try{
-  const J=await loadPdfLib(),doc=buildPdf(J,items);
+  const doc=buildPdf(J,items);
   doc.save(fname(set?cs.name:S.title)+".pdf");msg("PDF gerado.");
- }catch(e){msg("Não foi possível gerar o PDF direto (na primeira vez precisa de internet). Use “Imprimir / PDF”.")}
+ }catch(e){console.error(e);msg("Erro ao montar o PDF: "+((e&&e.message)||e)+". Use “Imprimir / PDF” enquanto isso.")}
 }
 $("pdf").onclick=exportPdf;

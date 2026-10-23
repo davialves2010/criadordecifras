@@ -77,7 +77,9 @@
     <div class="sec" id="pbox" style="display:none">
      <label style="margin-top:0">Cole aqui a cifra (acordes numa linha, letra embaixo). Separe as seções com uma linha em branco; títulos como “Refrão:” ou “[Ponte]” nomeiam a seção.</label>
      <textarea id="ptxt" rows="9" placeholder="C            G&#10;Abra os olhos do meu coração"></textarea>
-     <div class="help" id="purlhint" hidden>Isto parece um endereço de site. O Montador não consegue abrir sites sozinho: abra a cifra no site, toque no favorito <b>Cifra → Montador</b> (veja em Configurações → Minhas músicas) e cole o texto copiado aqui.</div>
+     <label>Ou cole o link da cifra</label>
+     <div class="row"><input id="purl" type="url" placeholder="https://www.cifraclub.com.br/…" aria-label="Link da cifra" inputmode="url"><button id="purlgo" style="flex:0 0 auto">Buscar</button></div>
+     <div class="help">Tenta buscar a cifra de Cifra Club e Cifras.com.br. Alguns sites bloqueiam esse acesso; nesse caso, abra a cifra no site, copie o texto e cole no campo acima.</div>
      <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="prep" style="width:auto"> Substituir as seções atuais</label>
      <div class="bar"><button class="p" id="pgo">Converter e adicionar</button><button id="pcx">Cancelar</button></div>
     </div>
@@ -166,7 +168,7 @@
    <div class="crow"><div><b>Música aberta</b><span class="muted">Baixa só a música que você está editando.</span></div><button id="m-expo">⬇ Exportar esta</button></div>
    <div class="crow"><div><b>Exportar em ChordPro</b><span class="muted">Baixa a música aberta em .cho, para usar em outros apps.</span></div><button id="m-cho">⬇ ChordPro</button></div>
    <div class="crow"><div><b>Importar arquivo</b><span class="muted">Acrescenta as músicas do arquivo (.json ou ChordPro) à sua biblioteca.</span></div><button id="m-imp">⬆ Importar</button></div>
-   <div class="crow bkmrow"><div><b>Importar de um site de cifras</b><span class="muted">No computador, arraste o botão ao lado para a barra de favoritos. Em um site de cifras, abra a música e clique no favorito: o texto é copiado. Depois use <b>Colar cifra</b> aqui. Use só com conteúdo que você pode usar (direitos autorais).</span></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><a id="bkm" href="#">⭐ Cifra → Montador</a><button id="bkmcopy">Copiar código</button></div></div>
+   <div class="crow bkmrow"><div><b>Importar de um site de cifras</b><span class="muted">Alternativa ao campo de link, para qualquer site. No computador: arraste o botão ao lado para a barra de favoritos, abra a cifra no site e clique no favorito (o texto é copiado); depois use <b>Colar cifra</b>. No celular: selecione o texto da cifra no site, copie e cole em <b>Colar cifra</b>. Use só conteúdo que você pode usar (direitos autorais).</span></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><a id="bkm" href="#">⭐ Cifra → Montador</a><button id="bkmcopy">Copiar código</button></div></div>
    <div class="crow"><div><b>Links compartilhados</b><span class="muted">Veja, copie ou apague os links que você criou.</span></div><button id="m-links">Gerenciar</button></div>
    <div class="crow"><div><b>Música de exemplo</b><span class="muted">Adiciona “Abra os Olhos do Meu Coração”.</span></div><button id="m-ex">Adicionar</button></div>
   </section>
