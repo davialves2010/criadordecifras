@@ -3,11 +3,16 @@ const CH=/^[A-G][#b]?(?:maj|min|dim|aug|m|M|°|º|\+|-)?(?:[0-9]{1,2}|[#b+-][0-9
 const SKIP=/^(\||\|\||:\|\||\|\|:|:|-|–|x\d+|\d+x|\(?\d+x\)?)$/i;
 const nb=x=>x.replace(/\{[^}]*\}$/,"");
 const nt=x=>{const m=x.match(/\{([^}]*)\}$/);return m?m[1].replace(/_/g," "):""};
+/* limpa o que vem de copiar de sites e PDFs: espaços "especiais" viram espaço comum (mesmo tamanho: o alinhamento
+   dos acordes não muda), caracteres invisíveis somem e ♯/♭ viram #/b */
+const norm=t=>String(t==null?"":t).replace(/[\u200B-\u200F\u2060\uFEFF\u00AD]/g,"").replace(/[\u2028\u2029]/g,"\n").replace(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g," ").replace(/[♯＃]/g,"#").replace(/♭/g,"b");
 const isChordLine=l=>{const t=l.trim().split(/\s+/).filter(Boolean);return t.length>0&&t.some(x=>CH.test(nb(x)))&&t.every(x=>CH.test(nb(x))||SKIP.test(x))};
 const HEAD=/^\[?\s*(intro(dução|ducao)?|estrofe|verso|refr[aã]o|coro|ponte|pr[eé][- ]?refr[aã]o|final|solo|interl[uú]dio|outro|tag)\b[^\n]{0,20}?\]?\s*:?\s*$/i;
 const BH=/^\[([^\]]+)\]\s*((?:\d+\s*x|x\s*\d+))?\s*$/i;
 const isHdr=l=>{const t=l.trim(),m=t.match(BH);return(!!m&&!CH.test(m[1].trim()))||(!isChordLine(t)&&HEAD.test(t))};
 const IH=/^\s*\[?\s*(intro(?:dução|ducao)?|solo|interl[uú]dio|final|ponte|refr[aã]o|estrofe|coro|outro)\s*(\(?\s*(?:\d+\s*x|x\s*\d+)\s*\)?)?\s*\]?\s*[:\-]?\s*(\S.*)$/i;
+/* "Intro: C G Am F" (cabeçalho e acordes na mesma linha) */
+const isIntroChords=l=>{const m=l.match(IH);return!!m&&isChordLine(m[3])};
 const hn=n=>{let rep="";const r2=n.match(/\(?\s*(\d+\s*x|x\s*\d+)\s*\)?\s*$/i);if(r2){rep=r2[1].replace(/\s/g,"");n=n.replace(r2[0],"").trim()||n}return{name:n[0].toUpperCase()+n.slice(1),rep}};
 /* "( G9 C/E )" -> chama de linha de acordes, trocando os parênteses por espaços (mantém o alinhamento) */
 const fixParen=l=>{if(!/[()]/.test(l))return l;const l2=l.replace(/\S+/g,t=>/\(/.test(t)&&/\)/.test(t)?t:t.replace(/[()]/g," "));return isChordLine(l2)&&!isChordLine(l)?l2:l};
@@ -19,7 +24,7 @@ function conv(chordL,lyric){
 }
 function chordOnly(l){return l.trim().split(/\s+/).map(x=>{if(CH.test(nb(x))){const n=nt(x);return "["+nb(x)+"]"+(n?"{"+n+"}":"")}return x}).join(" ")}
 function parse(txt){
- const L=txt.replace(/\r/g,"").split("\n").map(fixParen),secs=[];let cur=null;
+ const L=norm(txt).replace(/\r/g,"").split("\n").map(fixParen),secs=[];let cur=null;
  const flush=()=>{if(cur&&(cur.lines.length||cur.note||cur.name)){
   const co=cur.lines.length>0&&cur.lines.every(x=>/^[\s|:\[\]\-x\d]*$/.test(x.replace(/\[[^\]]+\]|\{[^}]*\}/g,"")));
   const s={name:cur.name||(co&&!secs.length?"Introdução":"Estrofe"),text:cur.lines.join("\n")};
@@ -69,7 +74,7 @@ $("paste").onclick=()=>{$("pbox").style.display="block";$("ptxt").focus()};
 $("pcx").onclick=()=>{$("pbox").style.display="none"};
 const METARE=/^\s*(tom|capo|capotraste|bpm|compasso)\s*[:\-]\s*(.*)$/i;
 function metaPaste(txt){
- const L=txt.replace(/\r/g,"").split("\n"),m={},drop=new Set();
+ const L=norm(txt).replace(/\r/g,"").split("\n"),m={},drop=new Set();
  L.forEach((l,i)=>{const x=l.match(METARE);if(!x)return;const k=x[1].toLowerCase(),v=x[2].trim();
   if(k==="tom"){const r=v.match(/^([A-G][#b]?)(m(?!aj)|\s*(?:menor|minor))?/i);if(r&&!m.key){m.key=r[1][0].toUpperCase()+r[1].slice(1)+(r[2]?"m":"");drop.add(i)}}
   else if(k.startsWith("capo")){const n=v.match(/\d+/);if(n&&+n[0]<=11){m.capo=+n[0];drop.add(i)}}
@@ -78,9 +83,10 @@ function metaPaste(txt){
  });
  let i=0;while(i<L.length&&(!L[i].trim()||drop.has(i)))i++;
  const head=[];let j=i;
- while(j<L.length&&L[j].trim()&&!drop.has(j)&&!isChordLine(L[j])&&!isHdr(L[j])&&!/^>/.test(L[j])&&L[j].trim().length<70&&head.length<3){head.push(L[j].trim());j++}
+ /* uma linha como "Intro: E9 A9 E9" é a primeira parte da cifra, não o título */
+ while(j<L.length&&L[j].trim()&&!drop.has(j)&&!isChordLine(L[j])&&!isHdr(L[j])&&!isIntroChords(L[j])&&!/^>/.test(L[j])&&L[j].trim().length<70&&head.length<3){head.push(L[j].trim());j++}
  const nx=L[j];let start=i;
- if(head.length>0&&head.length<=2&&(nx===undefined||!nx.trim()||drop.has(j)||isHdr(nx))){
+ if(head.length>0&&head.length<=2&&(nx===undefined||!nx.trim()||drop.has(j)||isHdr(nx)||isIntroChords(nx))){
   let t=head[0].replace(/\s*[-–|]\s*cifra.*$/i,"").replace(/^cifra\s*[:\-]?\s*/i,"").trim(),a=(head[1]||"").replace(/^(de|por|artista\s*:)\s+/i,"").trim();
   if(!a&&/\s[-–]\s/.test(t)){const p=t.split(/\s[-–]\s/);t=p[0].trim();a=p.slice(1).join(" - ").trim()}
   if(t)m.title=t;if(a)m.artist=a;start=j;
@@ -103,13 +109,14 @@ function applyMeta(mp,secs){
  if(mp.bpm&&!S.bpm){S.bpm=mp.bpm;got.push("BPM "+mp.bpm)}
  return got;
 }
+const countChords=secs=>secs.reduce((n,s)=>n+((s.text||"").match(/\[[A-G][^\]]*\]/g)||[]).length,0);
 $("pgo").onclick=()=>{
  const mp=metaPaste($("ptxt").value),r=parse(mp.body);
  if(!r.length){msg("Nada para converter. Cole a cifra no campo.");return}
  S.sections=$("prep").checked?r:S.sections.concat(r);
  const got=applyMeta(mp,S.sections);
  $("ptxt").value="";$("pbox").style.display="none";fields();all();
- msg(r.length+" seção(ões) adicionada(s)."+(got.length?" Detectei: "+got.join(", ")+".":"")+" Confira e ajuste se precisar.");
+ msg(r.length+" seção(ões) adicionada(s)."+(got.length?" Detectei: "+got.join(", ")+".":"")+(countChords(r)?" Confira e ajuste se precisar.":" Atenção: não reconheci nenhum acorde. Os acordes precisam estar numa linha própria, acima da letra (ex.: C   G   Am)."));
 };
 $("ttxt").onpaste=e=>{
  if($("ttxt").value.trim())return;
@@ -118,3 +125,22 @@ $("ttxt").onpaste=e=>{
  e.preventDefault();$("ttxt").value=mp.body;S.sections=parse(mp.body);
  const got=applyMeta(mp,S.sections);fields();save();preview();if(got.length)msg("Detectei: "+got.join(", ")+".");
 };
+/* colar direto dentro de um cartão: se o texto tem acordes em cima da letra, converte em vez de colar como texto */
+function pastedCifra(t){
+ t=String(t||"");if(t.trim().split("\n").length<2)return null;
+ const secs=parse(t);return countChords(secs)?secs:null;
+}
+document.addEventListener("paste",e=>{
+ const ta=e.target;if(!ta||ta.tagName!=="TEXTAREA"||!ta.closest||!ta.closest("#secs"))return;
+ const secs=pastedCifra((e.clipboardData||window.clipboardData).getData("text"));if(!secs)return;
+ const card=ta.closest(".card"),i=card?+card.dataset.di:-1,cur=S.sections[i];if(!cur)return;
+ e.preventDefault();
+ if(secs.length===1){
+  const a=ta.selectionStart,b=ta.selectionEnd,empty=!cur.text.trim();
+  ta.setRangeText(secs[0].text,a,b,"end");ta.oninput();
+  if(empty&&secs[0].name!=="Estrofe"&&secs[0].name!=="Introdução"){cur.name=secs[0].name;if(secs[0].rep)cur.rep=secs[0].rep;all()}
+ }else{
+  const empty=!cur.text.trim();S.sections.splice(empty?i:i+1,empty?1:0,...secs);all();
+ }
+ msg("Cifra convertida: os acordes foram colocados sobre a letra.");
+},true);

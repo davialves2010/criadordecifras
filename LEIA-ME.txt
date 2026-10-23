@@ -1,19 +1,4 @@
-CORREÇÃO: PDF direto e importação por link
+CORREÇÃO: acordes colados como texto
 
-Extraia este zip POR CIMA da pasta do projeto.
-
-Causa do PDF não funcionar: js/pdf.js declarava "const PT", e js/auth.js já declara "PT".
-O navegador então recusa o pdf.js inteiro e o botão fica sem função. Foi corrigido (nomes com prefixo PDF_)
-e criado tests/globais.test.js, que carrega todos os scripts na ordem do index.html e falha se algum
-redeclarar uma variável global de outro.
-
-Importar pelo link: novo campo em "Colar cifra" + função api/importar.js (só na Vercel).
-Veja NOVIDADES.md ("Importar pelo link") para as variáveis de ambiente recomendadas.
-
-Arquivos: js/pdf.js  js/extras.js  index.html  api/importar.js  api/_extrair.js
-          tests/harness.js  tests/globais.test.js  tests/correcoes.test.js  tests/importar.test.js
-          NOVIDADES.md
-
-Depois do deploy: node --test tests/*.test.js
-Se o PDF ainda falhar, o aviso na tela agora diz o motivo (biblioteca não baixou, ou o erro ao montar).
-Se isso acontecer, abra o Console do navegador (F12) e me mande a mensagem em vermelho.
+Extraia por cima do projeto (substitui js/importer.js). Depois: node --test tests/*.test.js
+Para refazer uma música já colada: Colar cifra, marque "Substituir as seções atuais" e cole de novo.
