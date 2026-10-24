@@ -1,0 +1,52 @@
+/* css/ux.css — melhorias de design e usabilidade. Carregar DEPOIS de style.css e features.css */
+
+/* 1. Cor: azul = ação; vermelho (--dg) só para o que é destrutivo ou erro */
+:root{--ac:#2563eb;--dg:#c8102e}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--ac:#3b6fe0}}
+:root[data-theme="dark"]{--ac:#3b6fe0}
+.dng{color:var(--dg);border-color:var(--dg)}
+.dng:hover{background:var(--dg);color:#fff;border-color:var(--dg)}
+.ccard.danger{border-color:color-mix(in srgb,var(--dg) 45%,transparent)}
+.sv.bad{color:var(--dg)}.dot.bad{background:var(--dg)}
+.card .acts button[title="Remover"]:hover{color:var(--dg)}
+.armed{background:#b45309!important;border-color:#b45309!important;color:#fff!important}
+.armed.dng{background:var(--dg)!important;border-color:var(--dg)!important}
+
+/* 2. Painel "Layout de impressão" */
+.layp{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:8px 18px;padding-top:8px;border-top:1px solid var(--bd)}
+.layp[hidden]{display:none}
+
+/* 3. Palco: barra inferior com botões grandes, resto no menu */
+#sbar{align-items:center}
+#sbar button,#sbar select{min-height:44px}
+#sbar #smenu{display:none;flex:1 1 100%;flex-wrap:wrap;gap:8px;align-items:center;padding-top:6px;border-top:1px solid #444}
+#sbar.open #smenu{display:flex}
+#sbar #smore{margin-left:auto}
+#sbot{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:#1a1d22;border-top:1px solid #444}
+#sbot button{flex:1;min-height:64px;font-size:22px;font-weight:700;border-radius:14px;background:#2a2e35;color:#eee;border:1px solid #555}
+#sbot #play{flex:2;background:var(--ac);border-color:var(--ac);color:#fff}
+#sbot button:active{filter:brightness(1.25)}
+#stage #stg{padding-bottom:calc(60vh + 90px)}
+body:has(#stage:not([hidden])) .toast{bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+
+/* 4/5. Palco: alto contraste, fonte monoespaçada e quebra de linhas longas */
+#stg .l{white-space:pre-wrap;overflow-wrap:anywhere}
+#stg .ln{max-width:100%}
+#stage.hc,#stage.hc #stg.stage{background:#000}
+#stage.hc #stg .c,#stage.hc #stg .ch .l{color:#ffe14d;font-weight:800}
+#stage.hc #stg .l{color:#fff;font-weight:600}
+#stage.hc #stg .box{border-color:#fff}#stage.hc #stg .box>.lb{background:#000;color:#fff}
+#stage.mono #stg .l,#stage.mono #stg .c{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace}
+
+/* 6. Estados vazios */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:28px 16px;background:var(--bg);border:1px dashed var(--bd);border-radius:14px;margin-top:12px}
+.empty[hidden]{display:none}
+.empty .eico{font-size:44px;line-height:1}
+.empty b{font-size:17px}.empty p{margin:0;max-width:320px}
+.empty button{padding:11px 20px;font-size:16px;margin-top:6px}
+.empty.small{padding:14px;font-size:13px;margin-top:8px}
+#t-sets.noset>*:not(.homehd):not(p):not(#sempty){display:none}
+
+/* 7. Toast único (substitui a caixa fixa do editor) */
+#msg{display:none!important}
+.toast .tact{margin-left:14px;padding:2px 6px;border:0;background:transparent;color:#8db4ff;font-weight:700;text-decoration:underline;cursor:pointer}
