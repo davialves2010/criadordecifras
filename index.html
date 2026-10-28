@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="css/features.css">
 <link rel="stylesheet" href="css/ux.css">
 <link rel="stylesheet" href="css/mobile.css">
+<link rel="stylesheet" href="css/fase3.css">
 <style id="pgcss"></style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -63,6 +64,7 @@
     <label for="key">Tom original <span class="muted">(o tom em que a cifra foi escrita)</span></label><input id="key" placeholder="ex: C, Am, Bb">
     <details class="sub"><summary>Mais detalhes (opcional)</summary>
      <label for="tags">Etiquetas (separe por vírgula)</label><input id="tags" placeholder="ex: adoração, natal">
+     <label for="folder">Pasta</label><input id="folder" list="folderlist" placeholder="ex: Adoração, Natal"><datalist id="folderlist"></datalist>
      <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="fav" style="width:auto"> ⭐ Favorita</label>
      <div class="row"><div><label for="time">Compasso</label><input id="time"></div><div><label for="bpm">BPM</label><input id="bpm" type="number" min="30" max="300"></div></div>
      <div class="row"><div><label for="dur">Duração (min:seg)</label><input id="dur" placeholder="ex: 4:30" inputmode="numeric"></div><div><label for="link">Link para ouvir (YouTube/Spotify)</label><input id="link" type="url" placeholder="https://…"></div></div>
@@ -101,7 +103,7 @@
    </div>
    <div class="homehd"><h2>🎵 Minhas músicas <span class="muted">(<span id="cnt">0</span>)</span></h2><button class="p" id="new">+ Nova música</button></div>
    <input id="q" placeholder="🔍 Título, artista ou letra… (dica: tom:G acorde:Em,C prog:C-G-Am)" aria-label="Buscar música">
-   <select id="sortsel" aria-label="Ordenar músicas" style="margin-top:6px"><option value="title">Ordem: A–Z</option><option value="recent">Ordem: mais recentes</option><option value="artist">Ordem: artista</option><option value="key">Ordem: tom</option></select><div class="chips" id="tagbar"></div>
+   <select id="sortsel" aria-label="Ordenar músicas" style="margin-top:6px"><option value="title">Ordem: A–Z</option><option value="recent">Ordem: mais recentes</option><option value="artist">Ordem: artista</option><option value="key">Ordem: tom</option></select><select id="foldersel" aria-label="Filtrar por pasta" style="margin-top:6px" hidden></select><div class="chips" id="tagbar"></div>
    <div id="list"></div>
    <div class="bar"><span class="menuwrap"><button id="more">⋯ Mais opções</button><div class="pop" id="pop" hidden>
     <div class="pg-song"><small class="ph">Esta música</small>
@@ -118,11 +120,13 @@
    <label for="setsel" style="margin-top:0">Escolha o repertório</label>
    <select id="setsel"></select>
    <input id="sname" aria-label="Nome do repertório" placeholder="Nome do repertório" style="margin-top:6px">
-   <div class="bar"><button id="snew">+ Novo repertório</button><button id="sdel">Excluir</button></div>
+   <label for="sdate">Data (culto ou ensaio)</label><input id="sdate" type="date">
+   <div class="muted">Repertórios com data de hoje ou anterior contam como tocados no histórico.</div>
+   <div class="bar"><button id="snew">+ Novo repertório</button><button id="sdup" title="Copia este repertório para montar o próximo (sem a data)">⧉ Duplicar</button><button id="sdel">Excluir</button></div>
    <div id="sitems"></div>
    <div class="muted" id="stot"></div>
    <input id="saq" aria-label="Buscar música para adicionar" placeholder="Buscar música para adicionar…" style="margin-top:6px"><div class="row" style="margin-top:6px"><select id="sadd" aria-label="Música a adicionar"></select><button style="flex:0 0 auto" id="saddb">+ Adicionar</button></div>
-   <div class="bar"><button class="p" id="sview">👁 Abrir repertório (ver, tocar, imprimir)</button><button id="sshare">🔗 Compartilhar link</button><button id="sunfollow" hidden>🔓 Parar de seguir</button><button id="slive" title="Link que se atualiza sozinho quando você muda o repertório">🔴 Link ao vivo</button><button id="scollab" title="Várias pessoas mantêm o mesmo repertório">👥 Editar em equipe</button><button id="back" style="display:none">← Voltar à música</button></div>
+   <div class="bar"><button class="p" id="sview">👁 Abrir repertório (ver, tocar, imprimir)</button><button id="sshare">🔗 Compartilhar link</button><button id="sunfollow" hidden>🔓 Parar de seguir</button><button id="slive" title="Link que se atualiza sozinho quando você muda o repertório">🔴 Link ao vivo</button><button id="scollab" title="Várias pessoas mantêm o mesmo repertório">👥 Editar em equipe</button><button id="steam" title="Quem toca ou canta em cada música">🎸 Escala de músicos</button><button id="shist" title="Mais tocadas, há quanto tempo não tocamos e últimos repertórios">📜 Histórico e estatísticas</button><button id="back" style="display:none">← Voltar à música</button></div>
   </section>
  </div>
  <div class="wrap">
@@ -208,6 +212,8 @@
  <button class="p" id="hclose">Fechar</button>
 </div></div>
 <div id="newsbox" class="modal" role="dialog" aria-modal="true" aria-label="Novidades" hidden><div class="mbox"><h3>✨ O que há de novo</h3><ul id="newsl"></ul><button class="p" id="newsx">Entendi</button></div></div>
+<div id="histbox" class="modal" role="dialog" aria-modal="true" aria-label="Histórico e estatísticas" hidden><div class="mbox"><h3>📜 Histórico e estatísticas</h3><label for="hper">Período das mais tocadas</label><select id="hper"><option value="30">Últimos 30 dias</option><option value="90" selected>Últimos 90 dias</option><option value="365">Último ano</option><option value="0">Tudo</option></select><div id="hbody"></div><button class="p" id="histx" style="margin-top:12px">Fechar</button></div></div>
+<div id="teambox" class="modal" role="dialog" aria-modal="true" aria-label="Escala de músicos" hidden><div class="mbox"><h3 id="ttitle">🎸 Escala</h3><div id="tbody"></div><button class="p" id="teamx" style="margin-top:12px">Fechar</button></div></div>
 <div id="shv" class="shv" role="dialog" aria-modal="true" aria-label="Cifra compartilhada" hidden><div class="shbar"><button id="shx">✕ Fechar</button><b id="shttl"></b><button class="p" id="shimp">💾 Salvar na minha conta</button></div><div class="sheet" id="shsheet"></div></div>
 <div id="shlinks" class="modal" role="dialog" aria-modal="true" aria-label="Links compartilhados" hidden><div class="mbox"><h3>Links compartilhados</h3><p class="muted">Apagar um link faz ele parar de funcionar para quem o recebeu.</p><div id="shll"></div><button class="p" id="shlc" style="margin-top:12px">Fechar</button></div></div>
 <div id="trashbox" class="modal" role="dialog" aria-modal="true" aria-label="Lixeira" hidden><div class="mbox"><h3>Lixeira</h3><div id="trashl"></div><button class="p" id="tclose" style="margin-top:12px">Fechar</button></div></div>
@@ -263,6 +269,7 @@
 <script src="js/collab.js"></script>
 <script src="js/extras.js"></script>
 <script src="js/ux.js"></script>
+<script src="js/repertorio.js"></script>
 <script src="js/novidades.js"></script>
 <script src="js/palco2.js"></script>
 <script src="js/a11y.js"></script>
