@@ -1,12 +1,16 @@
 /* js/novidades.js — aviso "O que há de novo": aparece uma vez por versão, depois do login.
    Para anunciar uma novidade nova: troque NEWS.v (qualquer texto diferente do anterior) e edite NEWS.itens. */
 (function(){
- const NEWS={v:"2026-10-26",itens:[
+ const NEWS={v:"2026-10-27",itens:[
   "📱 Tela da música reorganizada para o celular: botões em grade e barra de tom sem rolagem lateral.",
   "🎵 A lista de músicas agora mostra o tom e a duração de cada uma.",
   "⌨️ Dá para navegar pela lista só com o teclado (Tab e Enter).",
   "🎤 No palco: deslize para os lados para trocar de música e toque na borda da tela para voltar ou avançar a página. Dá para desligar em Configurações.",
   "📽 Novo modo Projeção no palco: só a letra, em fonte grande, para telão ou TV (tecla P).",
+  "📅 Repertórios agora têm data. Dá para duplicar um repertório para montar o próximo culto.",
+  "📜 Novo Histórico e estatísticas: músicas mais tocadas, há quanto tempo não tocamos cada uma e os últimos repertórios.",
+  "🎸 Escala de músicos: marque quem toca ou canta em cada música e copie o texto para mandar por mensagem.",
+  "📁 Pastas para organizar as músicas, além das etiquetas.",
   "🛡 Mais segurança por trás: limite nas importações por link e registro de erros para corrigirmos problemas mais rápido."
  ]};
  const g=id=>document.getElementById(id);

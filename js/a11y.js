@@ -17,7 +17,7 @@
  press();
 
  /* ---- camadas: diálogos (com foco preso) e menus (só Esc) ---- */
- const DLG=["helpbox","shlinks","trashbox","verbox","notebox","collabbox","thbox","shv","cfg","stage"];
+ const DLG=["helpbox","newsbox","histbox","teambox","shlinks","trashbox","verbox","notebox","collabbox","thbox","shv","cfg","stage"];
  const POP=["swp","pop"];
  const CLOSE={shv:"shx",cfg:"cfgback",stage:"sx"}; /* estes têm função própria de fechar */
  const isDlg=el=>DLG.includes(el.id);
