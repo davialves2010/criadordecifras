@@ -17,7 +17,7 @@ async function mkShare(kind,data){
  shareOut(r.id);
 }
 /* o que vai num link nunca leva dados pessoais (favorita, anotações) nem o token de edição em equipe */
-const pubSet=c=>{const o=clone(c);["collab","follow","followSig"].forEach(k=>delete o[k]);return o};
+const pubSet=c=>{const o=clone(c);["collab","follow","followSig","date","team"].forEach(k=>delete o[k]);return o};
 const setPayload=c=>{const ids=[...new Set(c.items.map(i=>i.songId))];return{songs:ids.map(songBy).filter(Boolean).map(stripPriv),set:pubSet(c)}};
 const mapItem=(i,idm)=>{const o={songId:idm[i.songId],shift:i.shift||0};if(i.note)o.note=i.note;return o};
 $("shOne").onclick=()=>mkShare("song",{songs:[stripPriv(S)]});
