@@ -1,0 +1,46 @@
+/* css/fase3.css — carregar DEPOIS de ux.css e mobile.css.
+   Reúne: ajustes de contraste/impressão P&B (melhorias), foco da lista e modo Projeção (fase 2) e histórico/escala (fase 3). */
+
+/* ---- contraste e impressão em preto e branco ---- */
+/* #6b7280 sobre #f1f2f4 dava ~4,3:1 (abaixo do AA); #4f5666 dá ~6,6:1. O tema escuro continua definido em style.css */
+:root{--mut:#4f5666}
+.sheet:not(.stage) .art{color:#5f6672}
+[role="dialog"]:focus,#stage:focus{outline:none}
+@media print and (monochrome){
+ .sheet .c,.sheet .ch .l,.chart figcaption{color:#000!important;font-weight:800}
+ .sheet .l{color:#444}
+}
+
+/* ---- fase 2: lista pelo teclado e modo Projeção ---- */
+.lib .it:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+#sproj[aria-pressed="true"]{background:var(--ac);border-color:var(--ac);color:#fff}
+#sproj-ctl{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));right:8px;z-index:6;display:flex;gap:6px;opacity:.35}
+#sproj-ctl[hidden]{display:none}
+#sproj-ctl:hover,#sproj-ctl:focus-within{opacity:1}
+#sproj-ctl button{min-width:44px;min-height:44px;background:#2a2e35;color:#eee;border:1px solid #555;border-radius:10px;font-size:18px}
+#stage.proj,#stage.proj #stg.stage{background:#000}
+#stage.proj #sbar,#stage.proj #sbot{display:none}
+#stage.proj #stg.stage{max-width:1200px;text-align:center;font-size:calc(var(--fs,18)*1.5px);padding-bottom:50vh}
+#stage.proj #stg .ln.ch,#stage.proj #stg .tabl,#stage.proj #stg .c,#stage.proj #stg .meta,#stage.proj #stg .setnote,
+#stage.proj #stg .mynotes,#stage.proj #stg .sn,#stage.proj #stg .chart{display:none}
+#stage.proj #stg .box{border:0;padding:0 0 .6em;margin:0 0 .6em}
+#stage.proj #stg .box>.lb{position:static;display:block;background:none;color:#888;padding:0 0 .2em}
+#stage.proj #stg .box:not(:has(.ln:not(.ch):not(.tabl))){display:none}
+#stage.proj #stg .l{color:#fff;font-size:1em;font-weight:600}
+#stage.proj #stg .body.c2{column-count:1}
+
+/* ---- fase 3: histórico, escala e data do repertório ---- */
+#sdate{max-width:220px}
+.hsec h4,.tmx h4,.twho h4{margin:16px 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.hrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px;width:100%;text-align:left;margin-top:4px;background:var(--bg);border-color:transparent}
+.hrow span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.hrow small{flex:0 0 auto;white-space:nowrap}
+#hper{margin:4px 0 6px}
+.trow{display:flex;gap:6px;margin-top:6px}
+.trow input{flex:1;min-width:0}
+.tsong{margin-top:10px}
+.tchk{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:4px}
+.tc{display:flex;gap:4px;align-items:center;margin:0;font-size:14px;color:var(--tx)}
+.tout div{padding:4px 0}
+#tbody>button{margin-top:8px}
+@media(max-width:860px){.hrow,.trow button,#tbody>button{min-height:44px}}
