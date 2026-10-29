@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="css/ux.css">
 <link rel="stylesheet" href="css/mobile.css">
 <link rel="stylesheet" href="css/fase3.css">
+<link rel="stylesheet" href="css/fase4.css">
 <style id="pgcss"></style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -157,6 +158,7 @@
   <section class="ccard">
    <div class="crow"><div><b>Tema</b><span class="muted">Automático segue o modo do seu aparelho. A folha continua branca, como no papel.</span></div>
     <div class="seg2" id="thseg" role="group" aria-label="Tema"><button data-th="">Automático</button><button data-th="light">Claro</button><button data-th="dark">Escuro</button></div></div>
+   <div class="crow"><div><b>Diagramas de acordes</b><span class="muted">Instrumento mostrado no quadro de acordes e ao tocar num acorde da folha.</span></div><select id="pf-inst" aria-label="Instrumento dos diagramas" style="width:auto"><option value="violao">Violão</option><option value="ukulele">Ukulele</option><option value="teclado">Teclado</option></select></div>
   </section>
 
   <h4>Modo palco</h4>
@@ -164,6 +166,7 @@
    <div class="crow"><div><b>Tamanho inicial da letra</b><span class="muted">Valor ao abrir o modo palco</span></div><div class="stepper"><button id="pfm" aria-label="Diminuir letra inicial">A−</button><b id="pf-v">18</b><button id="pfp" aria-label="Aumentar letra inicial">A+</button></div></div>
    <div class="crow"><div><b>Velocidade da rolagem</b><span class="muted">Valor inicial da rolagem automática manual. No palco também dá para rolar pelo andamento (BPM) ou pela duração da música.</span></div><input type="range" id="pf-spd" aria-label="Velocidade da rolagem" min="1" max="10" style="width:140px"></div>
    <div class="crow"><div><b>Pedal Bluetooth</b><span class="muted">PageDown/PageUp sempre rolam a página. Escolha o que as setas ◀ ▶ (que muitos pedais enviam) fazem.</span></div><select id="pf-pedal" aria-label="Função das setas no palco" style="width:auto"><option value="song">Trocam de música</option><option value="page">Rolam a página</option></select></div>
+   <div class="crow"><div><b>Palco ao vivo</b><span class="muted">Acompanhe a música que outra pessoa está transmitindo do palco dela, usando o código que ela passar. Para transmitir, abra o palco e use ⚙ Opções → 📡 Transmitir.</span></div><button id="m-join">Entrar com código</button></div>
    <div class="crow"><div><b>Gestos no palco</b><span class="muted">Deslize para os lados para trocar de música; toque na borda esquerda ou direita da tela para voltar ou avançar a página.</span></div><input type="checkbox" id="pf-gest" style="width:auto" aria-label="Gestos no palco"></div>
   </section>
 
@@ -214,6 +217,9 @@
 <div id="newsbox" class="modal" role="dialog" aria-modal="true" aria-label="Novidades" hidden><div class="mbox"><h3>✨ O que há de novo</h3><ul id="newsl"></ul><button class="p" id="newsx">Entendi</button></div></div>
 <div id="histbox" class="modal" role="dialog" aria-modal="true" aria-label="Histórico e estatísticas" hidden><div class="mbox"><h3>📜 Histórico e estatísticas</h3><label for="hper">Período das mais tocadas</label><select id="hper"><option value="30">Últimos 30 dias</option><option value="90" selected>Últimos 90 dias</option><option value="365">Último ano</option><option value="0">Tudo</option></select><div id="hbody"></div><button class="p" id="histx" style="margin-top:12px">Fechar</button></div></div>
 <div id="teambox" class="modal" role="dialog" aria-modal="true" aria-label="Escala de músicos" hidden><div class="mbox"><h3 id="ttitle">🎸 Escala</h3><div id="tbody"></div><button class="p" id="teamx" style="margin-top:12px">Fechar</button></div></div>
+<div id="livebox" class="modal" role="dialog" aria-modal="true" aria-label="Transmissão ao vivo" hidden><div class="mbox"><h3>📡 Transmitindo ao vivo</h3><p class="muted">Quem entrar com este código acompanha, no celular, a música que você abrir no palco. Fechar o palco encerra a transmissão.</p><div class="lvcode" id="lvcode"></div><div class="lvrow"><input id="lvlink" readonly aria-label="Link da transmissão"><button id="lvcopy">Copiar link</button></div><div class="bar"><button class="dng" id="lvstop">Parar transmissão</button><button class="p" id="lvx">Fechar</button></div></div></div>
+<div id="joinbox" class="modal" role="dialog" aria-modal="true" aria-label="Entrar em palco ao vivo" hidden><div class="mbox"><h3>📡 Entrar em palco ao vivo</h3><p class="muted">Digite o código que o líder mostrou (10 letras e números).</p><input id="jcode" aria-label="Código da transmissão" placeholder="ABCDE-FGHJK" autocomplete="off" autocapitalize="characters"><div class="bar"><button class="p" id="jgo">Entrar</button><button id="jx">Cancelar</button></div></div></div>
+<div id="chordbox" class="modal" role="dialog" aria-modal="true" aria-label="Posicionar acordes" hidden><div class="mbox cvbox"><h3>🎯 Posicionar acordes</h3><p class="muted">Toque num acorde e depois na letra para movê-lo, ou arraste o acorde. Para colocar um acorde novo, escolha-o abaixo e toque na letra onde ele deve tocar.</p><div class="chips" id="cvpal"></div><div id="cvbody"></div><div class="bar"><button class="p" id="cvok">Aplicar</button><button id="cvdel">🗑 Remover acorde</button><button id="cvcancel">Cancelar</button></div></div></div>
 <div id="shv" class="shv" role="dialog" aria-modal="true" aria-label="Cifra compartilhada" hidden><div class="shbar"><button id="shx">✕ Fechar</button><b id="shttl"></b><button class="p" id="shimp">💾 Salvar na minha conta</button></div><div class="sheet" id="shsheet"></div></div>
 <div id="shlinks" class="modal" role="dialog" aria-modal="true" aria-label="Links compartilhados" hidden><div class="mbox"><h3>Links compartilhados</h3><p class="muted">Apagar um link faz ele parar de funcionar para quem o recebeu.</p><div id="shll"></div><button class="p" id="shlc" style="margin-top:12px">Fechar</button></div></div>
 <div id="trashbox" class="modal" role="dialog" aria-modal="true" aria-label="Lixeira" hidden><div class="mbox"><h3>Lixeira</h3><div id="trashl"></div><button class="p" id="tclose" style="margin-top:12px">Fechar</button></div></div>
@@ -270,6 +276,9 @@
 <script src="js/extras.js"></script>
 <script src="js/ux.js"></script>
 <script src="js/repertorio.js"></script>
+<script src="js/acordes-visual.js"></script>
+<script src="js/palco-vivo.js"></script>
+<script src="js/diapasao.js"></script>
 <script src="js/novidades.js"></script>
 <script src="js/palco2.js"></script>
 <script src="js/a11y.js"></script>
