@@ -124,6 +124,7 @@ function pPlaceBox(P,b){
 }
 /* diagrama de acordes (mesma geometria do SVG da tela) */
 function pDiag(doc,c,x,y,sc){
+ if(typeof pDiagAlt==="function"){const r=pDiagAlt(doc,c,x,y,sc);if(r!==null)return r}
  const s=shape(c);if(!s)return false;
  const f=s.f,pr=f.filter(v=>v>0),mx=Math.max(0,...pr),mn=pr.length?Math.min(...pr):1,b=mx>4?mn:1,x0=18,y0=16,sx=7.5,sy=12;
  const X=v=>x+v*sc,Y=v=>y+v*sc;
