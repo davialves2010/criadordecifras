@@ -2,6 +2,8 @@
 /* ---- modo palco ---- */
 let SI=[],SX=0,SS=0,FS=18,PLAY=false,ACC=0,LT0=0,SMODE="manual",BPL=2,DURWARN=false;
 let WL=null,WANT=false;
+/* funções que outros arquivos pedem para rodar depois de cada desenho do palco (palco ao vivo, diapasão…) */
+const STAGE_HOOKS=[];
 async function wl(on){WANT=on;try{if(on&&navigator.wakeLock&&!WL){WL=await navigator.wakeLock.request("screen");WL.addEventListener("release",()=>{WL=null})}else if(!on&&WL){await WL.release();WL=null}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&WANT&&!WL)wl(true)});
 /* pedal Bluetooth: a maioria envia PageDown/PageUp ou as setas. Em Configurações dá para escolher
@@ -17,8 +19,9 @@ document.addEventListener("keydown",e=>{
  else if(k==="ArrowLeft"){e.preventDefault();pg?pageScroll(-1):$("sp").click()}
 });
 function stageRender(){
- const it=SI[SX];$("stg").innerHTML=sheetHTML(it.sg,it.x+SS,it.note||"");$("stg").style.setProperty("--fs",FS);
+ const it=SI[SX];if(!it)return;$("stg").innerHTML=sheetHTML(it.sg,it.x+SS,it.note||"");$("stg").style.setProperty("--fs",FS);
  $("tv").textContent=(SS>0?"+":"")+SS;$("sti").textContent=SI.length>1?(SX+1)+"/"+SI.length:"";$("stage").scrollTop=0;secList();
+ STAGE_HOOKS.forEach(f=>{try{f()}catch(e){}});
 }
 /* velocidade em pixels por segundo, conforme o modo escolhido */
 function scrollSpeed(){
@@ -52,7 +55,7 @@ $("stg0").onclick=()=>{
 };
 const closeStage=()=>{wl(false);play(false);$("stage").hidden=true;document.body.style.overflow="";$("tip").style.display="none"};
 $("sx").onclick=closeStage;
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("stage").hidden)closeStage()});
+/* o Esc é tratado em a11y.js: fecha só a camada do topo */
 $("sp").onclick=()=>{if(SX>0){SX--;SS=0;stageRender()}};
 $("sn").onclick=()=>{if(SX<SI.length-1){SX++;SS=0;stageRender()}};
 /* transposição no palco fica entre −6 e +5 (o rótulo mostra "−1", não "+11") */

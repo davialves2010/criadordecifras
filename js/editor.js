@@ -1,4 +1,4 @@
-/* js/editor.js — Editor por cartões: seções, arrastar e soltar, tom de saída */
+/* js/editor.js — Editor por cartões: seções, arrastar e soltar, dividir, tom de saída */
 const OPENS=new Set();
 let DRAG=null;
 function dnd(el,hd,kind,i,arr,done){
@@ -36,13 +36,24 @@ function editor(){
  S.sections.forEach((s,i)=>{
   const open=OPENS.has(s),d=document.createElement("div");d.className="card"+(open?" open":"");
   const pv=(s.text.split("\n")[0]||"").replace(/\[[^\]]+\]|\{[^}]*\}/g,"").trim().slice(0,40);
-  d.innerHTML=`<div class="ch"><span class="hd" title="Arraste para reordenar">⠿</span><span class="chev">${open?"▾":"▸"}</span><b class="nm">${esc(s.name||"(sem nome)")}</b>${s.rep?`<span class="rp">${esc(s.rep)}</span>`:""}<span class="pv">${esc(pv)}</span><span class="acts"><button title="Subir">↑</button><button title="Descer">↓</button><button title="Duplicar">⧉</button><button title="Remover">✕</button></span></div>`+
-  (open?`<div class="cb"><div class="row"><input class="in-n" placeholder="Nome da seção"><input class="in-r" placeholder="Repetição (2x)" style="max-width:110px"></div><input class="in-o" placeholder="Observação (ex: só voz e violão)" style="margin-top:6px"><div class="chips"></div><textarea rows="${Math.max(4,s.text.split("\n").length+1)}"></textarea></div>`:"");
+  d.innerHTML=`<div class="ch"><span class="hd" title="Arraste para reordenar">⠿</span><span class="chev">${open?"▾":"▸"}</span><b class="nm">${esc(s.name||"(sem nome)")}</b>${s.rep?`<span class="rp">${esc(s.rep)}</span>`:""}<span class="pv">${esc(pv)}</span><span class="acts"><button title="Subir" aria-label="Subir seção">↑</button><button title="Descer" aria-label="Descer seção">↓</button><button title="Dividir em duas partes, no cursor" aria-label="Dividir esta parte em duas, na linha do cursor">✂</button><button title="Duplicar" aria-label="Duplicar seção">⧉</button><button title="Remover" aria-label="Remover seção">✕</button></span></div>`+
+  (open?`<div class="cb"><div class="row"><input class="in-n" placeholder="Nome da seção" aria-label="Nome da seção"><input class="in-r" placeholder="Repetição (2x)" aria-label="Repetição" style="max-width:110px"></div><input class="in-o" placeholder="Observação (ex: só voz e violão)" aria-label="Observação" style="margin-top:6px"><div class="chips"></div><textarea rows="${Math.max(4,s.text.split("\n").length+1)}" aria-label="Letra e acordes da seção"></textarea></div>`:"");
   const q=x=>d.querySelector(x),on=(b,fn)=>b.onclick=e=>{e.stopPropagation();fn()};
   q(".ch").onclick=()=>{open?OPENS.delete(s):OPENS.add(s);editor()};
-  const [u,dn,dp,rm]=d.querySelectorAll(".acts button");
+  const [u,dn,sp,dp,rm]=d.querySelectorAll(".acts button");
   on(u,()=>{if(i>0){[S.sections[i-1],S.sections[i]]=[S.sections[i],S.sections[i-1]];all()}});
   on(dn,()=>{if(i<S.sections.length-1){[S.sections[i+1],S.sections[i]]=[S.sections[i],S.sections[i+1]];all()}});
+  /* divide a parte antes da linha onde está o cursor: a segunda metade vira uma parte nova com o mesmo nome */
+  on(sp,()=>{
+   const ta=q("textarea");
+   if(!ta){msg("Abra a parte e toque no texto, na linha onde quer dividir.");return}
+   const pos=ta.selectionStart||0,ini=pos>0?s.text.lastIndexOf("\n",pos-1)+1:0;
+   if(ini<=0||ini>=s.text.length){msg("Coloque o cursor numa linha do meio do texto: a divisão acontece antes dessa linha.");return}
+   const ns={name:s.name,text:s.text.slice(ini).replace(/^\n+/,"")};
+   if(s.rep)ns.rep=s.rep;
+   s.text=s.text.slice(0,ini).replace(/\n+$/,"");
+   S.sections.splice(i+1,0,ns);OPENS.add(ns);all();toast("Parte dividida em duas.");
+  });
   on(dp,()=>{S.sections.splice(i+1,0,{...s});all()});
   on(rm,()=>{if(s.text.trim()&&!armed(rm))return;S.sections.splice(i,1);all()});
   dnd(d,q(".hd"),"sec",i,S.sections,all);
@@ -55,6 +66,11 @@ function editor(){
    ta.oninput=()=>{s.text=ta.value;save();preview()};
    const mk=(t,fn,c)=>{const b=document.createElement("button");b.textContent=t;b.className=c||"";b.onmousedown=e=>e.preventDefault();b.onclick=fn;q(".chips").appendChild(b)};
    mk("[ ]",()=>ins(ta,"[]",1),"tool");mk("{ }",()=>ins(ta,"{}",1),"tool");
+   mk("🎯 Posicionar",()=>{
+    if(typeof chordEditorOpen!=="function"){toast("Recurso indisponível: falta carregar js/acordes-visual.js.");return}
+    if(!s.text.trim()){toast("Escreva a letra primeiro; depois posicione os acordes.");return}
+    chordEditorOpen(s,()=>{save();all()});
+   },"tool");
    keyChords().forEach(c=>mk(c,()=>ins(ta,"["+c+"]",0)));
   }
   box.appendChild(d);
