@@ -1,0 +1,25 @@
+/* css/fase4.css — carregar DEPOIS de fase3.css. Palco ao vivo, diapasão e "Posicionar acordes". */
+
+/* palco: botões novos no menu e no modo "acompanhando" */
+#sbroad[aria-pressed="true"],#snote[aria-pressed="true"]{background:var(--ac);border-color:var(--ac);color:#fff}
+#sfollow,#sleave{display:none}
+#stage.seg #sfollow,#stage.seg #sleave{display:inline-flex;align-items:center;min-height:44px}
+#stage.seg #sp,#stage.seg #sn,#stage.seg #sbroad,#stage.seg #snote{display:none}
+
+/* janela do código */
+.lvcode{font-size:30px;font-weight:800;letter-spacing:.12em;text-align:center;margin:12px 0;font-family:ui-monospace,Menlo,Consolas,monospace;user-select:all}
+.lvrow{display:flex;gap:6px;margin-top:6px}.lvrow input{flex:1;min-width:0}
+#jcode{font-size:22px;letter-spacing:.1em;text-transform:uppercase;text-align:center}
+
+/* posicionar acordes */
+.cvbox{max-width:760px}
+#cvpal{margin:8px 0}
+#cvbody{max-height:50vh;overflow:auto;margin-top:6px}
+.cvline{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px;margin-top:10px;overflow-x:auto;padding-bottom:4px}
+.cvrail{position:relative;height:3.2em;white-space:pre;min-width:100%}
+.cvk{position:absolute;padding:1px 6px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;color:var(--ac);font-weight:700;cursor:grab;touch-action:none;user-select:none;white-space:pre}
+.cvk.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.cvtxt{white-space:pre;display:inline-block;min-width:100%;border-top:1px solid var(--bd);padding-top:2px}
+.cvc{cursor:pointer}
+.cvc:hover{background:color-mix(in srgb,var(--ac) 30%,transparent)}
+@media(max-width:860px){#cvpal button,.cvbox .bar button{min-height:44px}.cvk{padding:4px 8px}}
